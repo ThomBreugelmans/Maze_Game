@@ -379,8 +379,9 @@
                     }
 
                     redrawPlayer(oldx, oldy, x, y);
+                    console.log("test");
 
-                    if (x >= (winX+0.25)*tileSize && x <= (winX+0.75) * tileSize && y >= (winY+0.25)*tileSize && y <= (winY+0.75) * tileSize) {
+                    if (winX > -1 && winY > -1 && x >= (winX+0.25)*tileSize && x <= (winX+0.75) * tileSize && y >= (winY+0.25)*tileSize && y <= (winY+0.75) * tileSize) {
                         console.log("you've won!");
                         cancelAnimationFrame(req);
                         $('#fireworks').css("display", "block");
