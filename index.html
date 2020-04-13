@@ -286,7 +286,7 @@
                             length = 8;
                         }
                         for (let i = ioffset; i < length; i++) {
-                            if (surroundings[i * 36] < 255 && surroundings[i*36+1] < 255 && surroundings[i*36+2] < 255) {
+                            if (surroundings[i * 36] < 25 && surroundings[i*36+1] < 40 && surroundings[i*36+2] < 65) {
                                 return false;
                             }
                         }
@@ -307,7 +307,7 @@
                             length = 8;
                         }
                         for (let i = ioffset; i < length; i++) {
-                            if (surroundings[i * 36 + 32] < 255 && surroundings[i*36+33] < 255 && surroundings[i*36+34] < 255) {
+                            if (surroundings[i * 36 + 32] < 25 && surroundings[i*36+33] < 40 && surroundings[i*36+34] < 65) {
                                 return false;
                             }
                         }
@@ -329,7 +329,7 @@
                         }
                         var offset = 8*36;
                         for (let i = ioffset; i < length; i++) {
-                            if (surroundings[i * 4 + offset] < 255 && surroundings[i*4+1 + offset] < 255 && surroundings[i*4+2 + offset] < 255) {
+                            if (surroundings[i * 4 + offset] < 25 && surroundings[i*4+1 + offset] < 40 && surroundings[i*4+2 + offset] < 65) {
                                 return false;
                             }
                         }
@@ -350,7 +350,7 @@
                             length = 8;
                         }
                         for (let i = ioffset; i < length; i++) {
-                            if (surroundings[i * 4] < 255 && surroundings[i*4+1] < 255 && surroundings[i*4+2] < 255) {
+                            if (surroundings[i * 4] < 25 && surroundings[i*4+1] < 40 && surroundings[i*4+2] < 65) {
                                 return false;
                             }
                         }
@@ -379,7 +379,6 @@
                     }
 
                     redrawPlayer(oldx, oldy, x, y);
-                    console.log("test");
 
                     if (winX > -1 && winY > -1 && x >= (winX+0.25)*tileSize && x <= (winX+0.75) * tileSize && y >= (winY+0.25)*tileSize && y <= (winY+0.75) * tileSize) {
                         console.log("you've won!");
