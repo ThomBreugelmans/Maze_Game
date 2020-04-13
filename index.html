@@ -1,27 +1,708 @@
 <!DOCTYPE html>
 <head>
-    <title>
-        MTV Organogram
-    </title>
+    <title>A maze game</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 </head>
 <body>
-    <style>
-        .names {
-            display: flex;
-            justify-content: space-around;
-        }
-    </style>
-    
-    <div class="wrapper" style="text-align: center;">
-        <div class="head" style="background-color: crimson; display: inline-block; border-radius: 30px; width: 70%; height: 150px;">
-            <span class="names" style="color: white; font-family: Arial, Helvetica, sans-serif; font-size: 1.5em;">Bestuur</span>
-            <span class="names" style="background-color: royalblue; font-family: Arial, Helvetica, sans-serif; width: auto; font-size: 1.2em;">nummer 1</span>
-            <span class="names" style="background-color: royalblue; font-family: Arial, Helvetica, sans-serif; width: auto; font-size: 1.2em;">nummer 2</span>
-            <span class="names" style="background-color: royalblue; font-family: Arial, Helvetica, sans-serif; width: auto; font-size: 1.2em;">nummer 3</span>
-            <span class="names" style="background-color: royalblue; font-family: Arial, Helvetica, sans-serif; width: auto; font-size: 1.2em;">nummer 4</span>
-            <span class="names" style="background-color: royalblue; font-family: Arial, Helvetica, sans-serif; width: auto; font-size: 1.2em;">nummer 5</span>
-            <span class="names" style="background-color: royalblue; font-family: Arial, Helvetica, sans-serif; width: auto; font-size: 1.2em;">nummer 6</span>
-            <span class="names" style="background-color: royalblue; font-family: Arial, Helvetica, sans-serif; width: auto; font-size: 1.2em;">nummer 7</span>
-        </div>
+    <div style="text-align: center;">
+        <h1>THE MAZE GAME</h1>
+        <br>
+        <hr>
+        <br><br><br>
+        <canvas id="maze" width="150" height="100"></canvas>
+        <canvas id="fireworks" width="100%" height="100%" style="display: none; position: absolute; top: 0; left: 0;"></canvas>
     </div>
+    <script>
+        const tileSize = 25;
+        var width = 60;
+        var height = 40;
+        const canvas = document.getElementById("maze");
+        const context = canvas.getContext("2d");
+        canvas.width = width * tileSize;
+        canvas.height = height * tileSize;
+        
+        let grid = [];
+        for (let x = 0; x < width; x++) {
+            for (let y = 0; y < height; y++) {
+                var cell = new Cell(x, y);
+                //debugger;
+                grid.push(cell);
+            }
+        }
+
+        var current = grid[0];
+        while (current) {
+            current.visited = true;
+            if (current.hasUnvisitedNeighbour()) {
+                var next = current.getRandomUnvisitedNeighbour();
+                current = next;
+            } else {
+                current = current.parent;
+            }
+        }
+
+        grid[0].walls[3] = false;
+        //choose the ending tile
+        //first choose the side 0 top, 1 right, 2 bottom
+        var side = Math.round(Math.random() * 2);
+        var place = 0;
+        var winX;
+        var winY;
+        //then decide the place
+        if (side === 0) { // if top we dont want to have it near the start
+            place = 30 + Math.round(Math.random() * (width - 31));
+            winX = place;
+            winY = 0;
+            grid[index(place, 0)].walls[side] = false;
+        } else if (side === 1) {
+            place = Math.round(Math.random() * (height - 1));
+            winX = width - 1;
+            winY = place;
+            grid[index(width - 1, place)].walls[side] = false;
+        } else {
+            place = Math.round(Math.random() * (width - 1));
+            winX = place;
+            winY = height - 1;
+            grid[index(place, height - 1)].walls[side] = false;
+        }
+
+        for (let i = 0; i < grid.length; i++) {
+            grid[i].show();
+        }
+        
+        
+        context.fillStyle = "#000000";
+        context.moveTo(1,26);
+        context.lineTo(1, height * tileSize - 1);
+        context.stroke(); // left
+
+        if (side !== 0) {
+            context.moveTo(1,1);
+            context.lineTo(width * tileSize - 1, 1);
+            context.stroke(); // top
+        } else {
+            context.moveTo(1,1);
+            context.lineTo(place * tileSize, 1);
+            context.stroke();
+            context.moveTo((place + 1) * tileSize,1);
+            context.lineTo(width * tileSize - 1, 1);
+            context.stroke();
+        }
+        if (side !== 1) {
+            context.moveTo(width * tileSize - 1, height * tileSize - 1);
+            context.lineTo(width * tileSize - 1, 1);
+            context.stroke(); // right
+        } else {
+            context.moveTo(width * tileSize - 1, height * tileSize - 1);
+            context.lineTo(width * tileSize - 1, (place + 1) * tileSize);
+            context.stroke();
+            context.moveTo(width * tileSize - 1, place * tileSize);
+            context.lineTo(width * tileSize - 1, 1);
+            context.stroke()
+        }
+        if (side !== 2) {
+            context.moveTo(width * tileSize - 1, height * tileSize - 1);
+            context.lineTo(1, height * tileSize - 1);
+            context.stroke(); // bottom
+        } else {
+            context.moveTo(width * tileSize - 1, height * tileSize - 1);
+            context.lineTo((place + 1) * tileSize, height * tileSize - 1);
+            context.stroke();
+            context.moveTo(place * tileSize,height * tileSize - 1);
+            context.lineTo(1, height * tileSize - 1);
+            context.stroke();
+        }
+        
+        
+
+        /*
+        ==============================================
+        Objects and object methods below
+        ==============================================
+         */
+
+
+        function index(x, y) {
+            //console.log(x + " " + y + " " + (x * width + y));
+            return x * height + y;
+        }
+
+        function Cell(x, y) {
+            this.self = this;
+            this.x = x;
+            this.y = y;
+            this.visited = false;
+            this.parent = null;
+            this.walls = [true, true, true, true]; //top right bottom left
+
+            this.hasUnvisitedNeighbour = function() {
+                if (this.y >= 1) {
+                    var top = grid[index(this.x, this.y - 1)];
+                    if (!top.visited) {
+                        return true;
+                    }
+                }
+                if (this.x <= width - 2) {
+                    var right = grid[index(this.x + 1, this.y)];
+                    if (!right.visited) {
+                        return true;
+                    }
+                }
+                if (this.y <= height - 2) {
+                    var bottom = grid[index(this.x, this.y + 1)];
+                    if (!bottom.visited) {
+                        return true;
+                    }
+                }
+                if (this.x >= 1) {
+                    var left = grid[index(this.x - 1, this.y)];
+                    if (!left.visited) {
+                        return true;
+                    }
+                }
+            }
+
+            this.getRandomUnvisitedNeighbour = function() {
+                if (!this.hasUnvisitedNeighbour) {
+                    return null;
+                }
+
+                var neighbours = [];
+
+                var top = null;
+                var right = null;
+                var bottom = null;
+                var left = null;
+                if (this.y >= 1) {
+                    var top = grid[index(this.x, this.y - 1)];
+                }
+                if (this.x <= width - 2) {
+                    var right = grid[index(this.x + 1, this.y)];
+                }
+                if (this.y <= height - 2) {
+                    var bottom = grid[index(this.x, this.y + 1)];
+                }
+                if (this.x >= 1) {
+                    var left = grid[index(this.x - 1, this.y)];
+                }
+                neighbours.push(top);
+                neighbours.push(right);
+                neighbours.push(bottom);
+                neighbours.push(left);
+
+                var chosen = null;
+                let random;
+                while (!chosen || chosen.visited) {
+                    random = Math.round(Math.random() * (neighbours.length - 1))
+                    chosen = neighbours[random];
+                }
+
+                this.walls[random] = false;
+                //console.log("coords: " + this.x + ", " + this.y);
+                //console.log("next: " + random);
+                //debugger;
+                random += 2;
+                if (random > 3) {
+                    random -= 4;
+                }
+                chosen.walls[random] = false;
+                chosen.parent = this.self;
+
+                return chosen;
+            }
+
+            this.show = function() {
+                context.fillStyle = "#FFFFFF";
+                context.fillRect(this.x * tileSize, this.y * tileSize, tileSize, tileSize);
+
+                context.fillStyle = "#000000"
+                if (this.walls[0]) {
+                    context.moveTo(this.x * tileSize, this.y * tileSize);
+                    context.lineTo(this.x * tileSize + tileSize, this.y * tileSize);
+                    context.stroke();
+                }
+                if (this.walls[1]) {
+                    context.moveTo(this.x * tileSize + tileSize, this.y * tileSize);
+                    context.lineTo(this.x * tileSize + tileSize, this.y * tileSize + tileSize);
+                    context.stroke();
+                }
+                if (this.walls[2]) {
+                    context.moveTo(this.x * tileSize, this.y * tileSize + tileSize);
+                    context.lineTo(this.x * tileSize + tileSize, this.y * tileSize + tileSize);
+                    context.stroke();
+                }
+                if (this.walls[3]) {
+                    context.moveTo(this.x * tileSize, this.y * tileSize);
+                    context.lineTo(this.x * tileSize, this.y * tileSize + tileSize);
+                    context.stroke();
+                }
+            }
+        }   
+        $('document').ready(function() {
+            context.fillStyle = "#FF0000";
+            context.fillRect(9, 9, 7, 7);
+            var x = 9;
+            var y = 9;
+            var oldx = x;
+            var oldy = y;
+            var upPressed = false;
+            var downPressed = false;
+            var leftPressed = false;
+            var rightPressed = false;
+
+            document.addEventListener("keydown", (e) => {
+                switch (e.keyCode) {
+                    case 87: //w
+                        upPressed = true;
+                        break;
+                    case 65: //a
+                        leftPressed = true;
+                        break;
+                    case 83: //s
+                        downPressed = true;
+                        break;
+                    case 68: //d
+                        rightPressed = true;
+                        break;
+
+                    default:
+                        return; // Do nothing for the rest
+                };
+            });
+
+            document.addEventListener("keyup", (e) => {
+                switch (e.keyCode) {
+                    case 87: //w
+                        upPressed = false;
+                        break;
+                    case 65: //a
+                        leftPressed = false;
+                        break;
+                    case 83: //s
+                        downPressed = false;
+                        break;
+                    case 68: //d
+                        rightPressed = false;
+                        break;
+
+                    default:
+                        return; // Do nothing for the rest
+                };
+            });
+
+            update();
+            var req;
+
+            function update() {
+                setTimeout(function() {
+                    oldx = x;
+                    oldy = y;
+
+                    var surroundings = context.getImageData(x-1, y-1,9,9).data;
+                    //console.log("8,0" + "R:" + surroundings[32] + "G:" + surroundings[33] + "B:" + surroundings[34] + "A:" + surroundings[35]);
+                    //console.log("8," + i + " " + "R:" + surroundings[i * 36 + 32] + "G:" + surroundings[i*36+33] + "B:" + surroundings[i*36+34] + "A:" + surroundings[i*36+35]);
+
+                    var allowedLeft = function() {
+                        let ioffset = 1;
+                        let length = 8;
+                        if (upPressed) {
+                            ioffset = 0;
+                            length += 1;
+                        }
+                        if (downPressed) {
+                            length += 1;
+                        }
+                        if (upPressed && downPressed) {
+                            ioffset = 1;
+                            length = 8;
+                        }
+                        for (let i = ioffset; i < length; i++) {
+                            if (surroundings[i * 36] < 255 && surroundings[i*36+1] < 255 && surroundings[i*36+2] < 255) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                    var allowedRight = function() {
+                        let ioffset = 1;
+                        let length = 8;
+                        if (upPressed) {
+                            ioffset = 0;
+                            length += 1;
+                        }
+                        if (downPressed) {
+                            length += 1;
+                        }
+                        if (upPressed && downPressed) {
+                            ioffset = 1;
+                            length = 8;
+                        }
+                        for (let i = ioffset; i < length; i++) {
+                            if (surroundings[i * 36 + 32] < 255 && surroundings[i*36+33] < 255 && surroundings[i*36+34] < 255) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                    var allowedDown = function() {
+                        let ioffset = 1;
+                        let length = 8;
+                        if (leftPressed) {
+                            ioffset = 0;
+                            length += 1;
+                        }
+                        if (rightPressed) {
+                            length += 1;
+                        }
+                        if (leftPressed && rightPressed) {
+                            ioffset = 1;
+                            length = 8;
+                        }
+                        var offset = 8*36;
+                        for (let i = ioffset; i < length; i++) {
+                            if (surroundings[i * 4 + offset] < 255 && surroundings[i*4+1 + offset] < 255 && surroundings[i*4+2 + offset] < 255) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                    var allowedUp = function() {
+                        let ioffset = 1;
+                        let length = 8;
+                        if (leftPressed) {
+                            ioffset = 0;
+                            length += 1;
+                        }
+                        if (rightPressed) {
+                            length += 1;
+                        }
+                        if (leftPressed && rightPressed) {
+                            ioffset = 1;
+                            length = 8;
+                        }
+                        for (let i = ioffset; i < length; i++) {
+                            if (surroundings[i * 4] < 255 && surroundings[i*4+1] < 255 && surroundings[i*4+2] < 255) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+
+                    if (upPressed && allowedUp()) {
+                        if (y > 0) {
+                            y -= 1;
+                        }
+                    }
+                    if (leftPressed && allowedLeft()) {
+                        if (x > 0) {
+                            x -= 1;
+                        }
+                    }
+                    if (downPressed && allowedDown()) {
+                        if (y < height * tileSize - 7) {
+                            y += 1; 
+                        }
+                    }
+                    if (rightPressed && allowedRight()) {
+                        if (x < width * tileSize - 7) {
+                        x += 1; 
+                        }
+                    }
+
+                    redrawPlayer(oldx, oldy, x, y);
+
+                    if (x >= (winX+0.25)*tileSize && x <= (winX+0.75) * tileSize && y >= (winY+0.25)*tileSize && y <= (winY+0.75) * tileSize) {
+                        console.log("you've won!");
+                        cancelAnimationFrame(req);
+                        $('#fireworks').css("display", "block");
+                        startFireworks();
+                    } else {
+                        req = requestAnimationFrame(update);
+                    }
+                }, 1000/200);
+            }
+
+            function redrawPlayer(oldX, oldY, newX, newY) {
+                context.fillStyle = "#FFFFFF";
+                context.fillRect(oldX, oldY, 7, 7);
+                context.fillStyle = "#FF0000";
+                context.fillRect(newX, newY, 7, 7);
+            }
+
+
+            /*
+            ==================================================
+            Start of the fireworks code, this is not mine, I used the code provided by http://seowebsitedesigning.com/create-fireworks-effect-using-html5-canvas/
+            I do not take the credit of writing this piece of code whatshowever!!!
+            ==================================================
+            */
+
+
+            function startFireworks() {
+                var screenWidth = window.innerWidth;
+                var screenHeight = window.innerHeight;
+
+                var minVx = -10;
+                var deltaVx = 20;
+                var minVy = 25
+                var deltaVy = 15;
+                var minParticleV = 5;
+                var deltaParticleV = 5;
+
+                var gravity = 1;
+
+                var explosionRadius = 200;
+                var bombRadius = 10;
+                var explodingDuration = 100;
+                var explosionDividerFactor = 10; // I couldn't find a better name. Got any?
+
+                var nBombs = 1; // initial
+                var percentChanceNewBomb = 5;
+
+                // Color utils forked from http://andreasstorm.com/
+                // (or someone who forked from there)
+
+                function Color(min) {
+                    min = min || 0;
+                    this.r = colorValue(min);
+                    this.g = colorValue(min);
+                    this.b = colorValue(min);
+                    this.style = createColorStyle(this.r, this.g, this.b);
+                };
+
+                function colorValue(min) {
+                    return Math.floor(Math.random() * 255 + min);
+                }
+
+                function createColorStyle(r,g,b) {
+                    return 'rgba(' + r + ',' + g + ',' + b + ', 0.8)';
+                }
+
+                // A Bomb. Or firework.
+                function Bomb(){
+                    var self = this;
+                    
+                    self.radius = bombRadius;
+                    self.previousRadius = bombRadius;
+                    self.explodingDuration = explodingDuration;
+                    self.hasExploded = false;
+                    self.alive = true;
+                    self.color = new Color();
+                    
+                    self.px = (window.innerWidth / 4) + (Math.random() * window.innerWidth / 2);
+                    self.py = window.innerHeight;
+                    
+                    self.vx = minVx + Math.random() * deltaVx;
+                    self.vy = (minVy + Math.random() * deltaVy) * -1; // because y grows downwards
+
+                    self.duration = 
+
+                    self.update = function(particlesVector){
+                        if(self.hasExploded){
+                        var deltaRadius = explosionRadius - self.radius;
+                        self.previousRadius = self.radius;
+                        self.radius += deltaRadius / explosionDividerFactor;
+                        self.explodingDuration--;
+                        if(self.explodingDuration == 0){
+                            self.alive = false;
+                        }
+                        }
+                        else{
+                        self.vx += 0;
+                        self.vy += gravity;
+                        if(self.vy >= 0){ // invertion point
+                            self.explode(particlesVector);
+                        }
+
+                        self.px += self.vx;
+                        self.py += self.vy;
+                        }
+                    };
+
+                    self.draw = function(ctx){
+                        ctx.beginPath();
+                        ctx.arc(self.px, self.py, self.previousRadius, 0, Math.PI * 2, false);
+                        if(self.hasExploded){
+                        }
+                        else{
+                        ctx.fillStyle = self.color.style;
+                        ctx.lineWidth = 1;
+                        ctx.fill();
+                        }
+                        
+                    };
+                    
+
+                    self.explode = function(particlesVector){
+                        self.hasExploded = true;
+                        var e = 3 + Math.floor(Math.random() * 3);
+                        for(var j = 0; j < e; j++){
+                        var n = 10 + Math.floor(Math.random() * 21); // 10 - 30
+                        var speed = minParticleV + Math.random() * deltaParticleV;
+                        var deltaAngle = 2 * Math.PI / n;
+                        var initialAngle = Math.random() * deltaAngle;
+                        for(var i = 0; i < n; i++){
+                            particlesVector.push(new Particle(self,  i * deltaAngle + initialAngle, speed));
+                        }
+                        }
+                    };
+                    
+                    }
+
+                    function Particle(parent, angle, speed){
+                    var self = this;
+                    self.px = parent.px;
+                    self.py = parent.py;
+                    self.vx = Math.cos(angle) * speed;
+                    self.vy = Math.sin(angle) * speed;
+                    self.color = parent.color;
+                    self.duration = 40 + Math.floor(Math.random()*20);
+                    self.alive = true;
+
+                    self.update = function(){
+                        self.vx += 0;
+                        self.vy += gravity / 10;
+
+                        self.px += self.vx;
+                        self.py += self.vy;
+                        self.radius = 3;
+
+                        self.duration--;
+                        if(self.duration <= 0){
+                        self.alive = false;
+                        }
+                    };
+
+                    self.draw = function(ctx){
+                        ctx.beginPath();
+                        ctx.arc(self.px, self.py, self.radius, 0, Math.PI * 2, false);
+                        ctx.fillStyle = self.color.style;
+                        ctx.lineWidth = 1;
+                        ctx.fill();
+                    };
+
+                }
+
+                function Controller(){
+                    var self = this;
+                    self.canvas = document.getElementById("fireworks");
+                    self.canvas.width = screenWidth;
+                    self.canvas.height = screenHeight;
+                    self.ctx = self.canvas.getContext('2d');
+
+                    function setSpeedParams(){
+                        var heightReached = 0;
+                        var vy = 0;
+
+                        while(heightReached < screenHeight && vy >= 0){
+                        vy += gravity;
+                        heightReached += vy;
+                        }
+
+                        minVy = vy / 2;
+                        deltaVy = vy - minVy;
+
+                        vx = (1 / 4) * screenWidth / (vy / 2);
+                        minVx = -vx;
+                        deltaVx = 2*vx;
+                    };
+
+                    
+
+                    self.resize = function(){
+                        screenWidth = window.innerWidth;
+                        screenHeight = window.innerHeight;
+                        self.canvas.width = screenWidth;
+                        self.canvas.height = screenHeight;
+                        setSpeedParams();
+                    };
+                    self.resize();
+
+                    window.onresize = self.resize;
+
+                    self.init = function(){
+                        self.readyBombs = [];
+                        self.explodedBombs = [];
+                        self.particles = [];
+
+                        for(var i = 0; i < nBombs; i++){
+                        self.readyBombs.push(new Bomb());
+                        }
+                    }
+
+                    self.update = function(){
+                        var aliveBombs = [];
+                        while(self.explodedBombs.length > 0){
+                        var bomb = self.explodedBombs.shift();
+                        bomb.update();
+                        if(bomb.alive){
+                            aliveBombs.push(bomb);
+                        }
+                        }
+                        self.explodedBombs = aliveBombs;
+
+                        var notExplodedBombs = [];
+                        while(self.readyBombs.length > 0){
+                        var bomb = self.readyBombs.shift();
+                        bomb.update(self.particles);
+                        if(bomb.hasExploded){
+                            self.explodedBombs.push(bomb);
+                        }
+                        else{
+                            notExplodedBombs.push(bomb);
+                        }
+                        }
+                        self.readyBombs = notExplodedBombs;
+
+                        var aliveParticles = [];
+                        while(self.particles.length > 0){
+                        var particle = self.particles.shift();
+                        particle.update();
+                        if(particle.alive){
+                            aliveParticles.push(particle);
+                        }
+                        }
+                        self.particles = aliveParticles;
+                    }
+
+                    self.draw = function(){
+                        self.ctx.beginPath();
+                        self.ctx.fillStyle='rgba(255, 255, 255, 0.1)'; // Ghostly effect
+                        self.ctx.fillRect(0, 0, self.canvas.width, self.canvas.height);
+                        
+                        
+                        
+                        for(var i = 0; i < self.readyBombs.length; i++){
+                        self.readyBombs[i].draw(self.ctx);
+                        }
+
+                        for(var i = 0; i < self.explodedBombs.length; i++){
+                        self.explodedBombs[i].draw(self.ctx);
+                        }
+
+                        for(var i = 0; i < self.particles.length; i++){
+                        self.particles[i].draw(self.ctx);
+                        }
+
+                    }
+
+                    self.animation = function(){
+                        self.update();
+                        self.draw();
+                        
+                    if(Math.random() * 100 < percentChanceNewBomb) {
+                        self.readyBombs.push(new Bomb());
+                    }
+                        
+                            
+                        requestAnimationFrame(self.animation);
+                    }
+                }
+
+                var controller = new Controller();
+                controller.init();
+                requestAnimationFrame(controller.animation);
+            }
+        });     
+    </script>
 </body>
