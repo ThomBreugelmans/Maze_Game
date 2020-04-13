@@ -16,6 +16,8 @@
         const tileSize = 25;
         var width = 50;
         var height = 35;
+        var sameDirInRow = 0;
+        var previousDir = -1;
         const canvas = document.getElementById("maze");
         const context = canvas.getContext("2d");
         canvas.width = width * tileSize;
@@ -173,17 +175,22 @@
                 var right = null;
                 var bottom = null;
                 var left = null;
+                var possibleNeigh = 0;
                 if (this.y >= 1) {
                     var top = grid[index(this.x, this.y - 1)];
+                    possibleNeigh++;
                 }
                 if (this.x <= width - 2) {
                     var right = grid[index(this.x + 1, this.y)];
+                    possibleNeigh++;
                 }
                 if (this.y <= height - 2) {
                     var bottom = grid[index(this.x, this.y + 1)];
+                    possibleNeigh++;
                 }
                 if (this.x >= 1) {
                     var left = grid[index(this.x - 1, this.y)];
+                    possibleNeigh++;
                 }
                 neighbours.push(top);
                 neighbours.push(right);
@@ -192,11 +199,17 @@
 
                 var chosen = null;
                 let random;
-                while (!chosen || chosen.visited) {
+                while (!chosen || chosen.visited || (random === previousDir && sameDirInRow > 5 && possibleNeigh > 1)) {
                     random = Math.round(Math.random() * (neighbours.length - 1))
                     chosen = neighbours[random];
                 }
 
+                if (random === previousDir) {
+                    sameDirInRow++;
+                } else {
+                    sameDirInRow = 0;
+                    previousDir = random;
+                }
                 this.walls[random] = false;
                 //console.log("coords: " + this.x + ", " + this.y);
                 //console.log("next: " + random);
