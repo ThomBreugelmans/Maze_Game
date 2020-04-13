@@ -18,10 +18,10 @@
         var height = 15;
         var sameDirInRow = 0;
         var previousDir = -1;
-        var coinAmount = Math.round(Math.random() * 6); // these coins will spawn randomly which you need to get in order to be able to see the exit.
+        var coinAmount = Math.round(Math.random() * 4); // these coins will spawn randomly which you need to get in order to be able to see the exit.
         while (coinAmount < 3) {
             //we do not want less than 3 coins
-            coinAmount = Math.round(Math.random() * 6);
+            coinAmount = Math.round(Math.random() * 4);
         }
         const canvas = document.getElementById("maze");
         const context = canvas.getContext("2d");
