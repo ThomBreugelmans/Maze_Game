@@ -1,5 +1,5 @@
 # Maze_Game
-A maze game made by yours truly
+A maze game made by yours truly, I am a student at the TU Delft in the Netherlands and because I was bored I made this :smiley_face: I hope you like it and hit me up if you want to add some changes or have some questions/additions! (I think the issues board would be best for this? And otherwise I think you can find my email) (for personal reference: 04-14-2020)
 
 ## Description
 This is a maze game generated using recursive backtracking, after the game is generated you will be able to play!
@@ -19,3 +19,6 @@ This is for players that find the medium difficulty way too easy, you will be pu
 
 ### Monster difficulty
 This is for the hardened veterans, this game mode is the same as the hard difficulty with as the only catch, your see radius is smaller and the maze is 2 times bigger... May the force be with you.
+
+### Maze generation algorithm
+There are two generation algorithms (as for now) the standard generation that uses recursive backtracking (wow nerd words, sorry ;) ) and the randomized prim's algorithm (for those interesed: https://en.wikipedia.org/wiki/Maze_generation_algorithm if I have the time and interest i'll maybe add more algos) The standard algorithm has long corridors and not a lot of choice in where to go and most of the times is just a single way to the exit and coins. Whereas the randomized prim's has lots more choice and a lot of short corridors and dead ends, so might be a bit more difficult idk. To choose your algo just check or uncheck the checkbox, unchecked is the standard algo, checked is the Prim's algo.
