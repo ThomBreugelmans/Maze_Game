@@ -2,6 +2,7 @@
 <head>
     <title>A maze game</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet"> 
 </head>
 <body style="background-color: black;">
     <div style="text-align: center;">
@@ -18,6 +19,7 @@
         <br>
         <hr>
         <br><br><br>
+        <p id="timer" style="position: relative; width: 50%; margin-left: 25%; margin-right: 25%; font-family: 'Roboto', sans-serif; color: lightgray; text-align: center;">0H 0m 0s</p>
         <div id="canvaswrapper" width="150" height="100" style="position: relative; left: 40%;">
             <canvas id="maze" width="150" height="100" style="position: absolute; top: 0px; left: 0px; z-index: 2;"></canvas>
             <canvas id="maze-overlay" width="150" height="100" style="display: none; position: absolute; top: 0px; left: 0px; z-index: 3;"></canvas>
@@ -155,7 +157,6 @@
                     current = cells[random];
                     
                     if (current.canConnectToMaze()) {
-                        debugger;
                         current.connectToMaze();
                         cells.splice(random, 1);
                         console.log("connected cell");
@@ -389,6 +390,7 @@
         
             context.fillStyle = "#FF0000";
             context.fillRect(9, 9, 7, 7);
+            var startTime = Date.now();
             var x = 9;
             var y = 9;
             var oldx = x;
@@ -452,6 +454,13 @@
             var req;
 
             function update() {
+                var difference = Date.now() - startTime;
+                var millis = difference%1000;
+                var seconds = Math.floor(difference/1000)%60;
+                var minutes = Math.floor(difference/60000)%60;
+                var hours = Math.floor(difference/3600000);
+                $('#timer').text(hours + "H " + minutes + "m " + seconds + "." + millis + "s");
+
                 setTimeout(function() {
                     oldx = x;
                     oldy = y;
