@@ -6,6 +6,11 @@
 <body style="background-color: black;">
     <div style="text-align: center;">
         <h1 style="color: lightgray;">THE MAZE GAME</h1>
+        <div id="flexbox" style="display: flexbox; justify-content: space-evenly; margin-left: auto; margin-right: auto;">
+            <button onclick="selectEasy()">Easy</button>
+            <button onclick="selectMedium()">Medium</button>
+            <button onclick="selectHard()">Hard</button>
+        </div>
         <br>
         <hr>
         <br><br><br>
@@ -13,199 +18,226 @@
         <canvas id="fireworks" width="100%" height="100%" style="display: none; position: absolute; top: 0; left: 0;"></canvas>
     </div>
     <script>
-        const tileSize = 25;
-        var width = 15;
-        var height = 15;
-        var sameDirInRow = 0;
-        var previousDir = -1;
-        var coinAmount = Math.round(Math.random() * 6); // these coins will spawn randomly which you need to get in order to be able to see the exit.
-        while (coinAmount < 3) {
-            //we do not want less than 3 coins
-            coinAmount = Math.round(Math.random() * 6);
+        var difficulty = undefined;
+
+        function selectEasy() {
+            console.log("easy");
+            difficulty = "easy";
+            start();
         }
-        const canvas = document.getElementById("maze");
-        const context = canvas.getContext("2d");
-        canvas.width = width * tileSize;
-        canvas.height = height * tileSize;
-        
-        let grid = [];
-        for (let x = 0; x < width; x++) {
-            for (let y = 0; y < height; y++) {
-                var cell = new Cell(x, y);
-                //debugger;
-                grid.push(cell);
+
+        function selectMedium() {
+            console.log("medium");
+            difficulty = "medium";
+            start();
+        }
+
+        function selectHard() {
+            console.log("hard");
+            difficulty = "hard";
+            start();
+        }
+
+        function start() {
+            const tileSize = 25;
+            var width = 15;
+            var height = 15;
+            if (difficulty === "easy") {
+                var width = 30;
+                var height = 25;
             }
-        }
-
-        var current = grid[0];
-        while (current) {
-            current.visited = true;
-            if (current.hasUnvisitedNeighbour()) {
-                var next = current.getRandomUnvisitedNeighbour();
-                current = next;
-            } else {
-                current = current.parent;
+            var sameDirInRow = 0;
+            var previousDir = -1;
+            if (difficulty === "medium" || difficulty === "hard") {
+                var coinAmount = Math.round(Math.random() * 6); // these coins will spawn randomly which you need to get in order to be able to see the exit.
+                while (coinAmount < 3) {
+                    //we do not want less than 3 coins
+                    coinAmount = Math.round(Math.random() * 6);
+                }
             }
-        }
-
-        grid[0].walls[3] = false;
-
-        for (let i = 0; i < grid.length; i++) {
-            grid[i].show();
-        }
-        
-        
-        context.fillStyle = "#000000";
-        context.moveTo(1,26);
-        context.lineTo(1, height * tileSize - 1);
-        context.stroke(); // left
-        
-        context.moveTo(1,1);
-        context.lineTo(width * tileSize - 1, 1);
-        context.stroke(); // top
-
-        context.moveTo(width * tileSize - 1, height * tileSize - 1);
-        context.lineTo(width * tileSize - 1, 1);
-        context.stroke(); // right
-
-        context.moveTo(width * tileSize - 1, height * tileSize - 1);
-        context.lineTo(1, height * tileSize - 1);
-        context.stroke(); // bottom
-        
-        
-
-        /*
-        ==============================================
-        Objects and object methods below
-        ==============================================
-         */
-
-
-        function index(x, y) {
-            //console.log(x + " " + y + " " + (x * width + y));
-            return x * height + y;
-        }
-
-        function Cell(x, y) {
-            this.self = this;
-            this.x = x;
-            this.y = y;
-            this.visited = false;
-            this.parent = null;
-            this.walls = [true, true, true, true]; //top right bottom left
-
-            this.hasUnvisitedNeighbour = function() {
-                if (this.y >= 1) {
-                    var top = grid[index(this.x, this.y - 1)];
-                    if (!top.visited) {
-                        return true;
-                    }
-                }
-                if (this.x <= width - 2) {
-                    var right = grid[index(this.x + 1, this.y)];
-                    if (!right.visited) {
-                        return true;
-                    }
-                }
-                if (this.y <= height - 2) {
-                    var bottom = grid[index(this.x, this.y + 1)];
-                    if (!bottom.visited) {
-                        return true;
-                    }
-                }
-                if (this.x >= 1) {
-                    var left = grid[index(this.x - 1, this.y)];
-                    if (!left.visited) {
-                        return true;
-                    }
+            const canvas = document.getElementById("maze");
+            const context = canvas.getContext("2d");
+            canvas.width = width * tileSize;
+            canvas.height = height * tileSize;
+            
+            let grid = [];
+            for (let x = 0; x < width; x++) {
+                for (let y = 0; y < height; y++) {
+                    var cell = new Cell(x, y);
+                    //debugger;
+                    grid.push(cell);
                 }
             }
 
-            this.getRandomUnvisitedNeighbour = function() {
-                if (!this.hasUnvisitedNeighbour) {
-                    return null;
-                }
-
-                var neighbours = [];
-
-                var top = null;
-                var right = null;
-                var bottom = null;
-                var left = null;
-                var possibleNeigh = 0;
-                if (this.y >= 1) {
-                    var top = grid[index(this.x, this.y - 1)];
-                    possibleNeigh++;
-                }
-                if (this.x <= width - 2) {
-                    var right = grid[index(this.x + 1, this.y)];
-                    possibleNeigh++;
-                }
-                if (this.y <= height - 2) {
-                    var bottom = grid[index(this.x, this.y + 1)];
-                    possibleNeigh++;
-                }
-                if (this.x >= 1) {
-                    var left = grid[index(this.x - 1, this.y)];
-                    possibleNeigh++;
-                }
-                neighbours.push(top);
-                neighbours.push(right);
-                neighbours.push(bottom);
-                neighbours.push(left);
-
-                var chosen = null;
-                let random;
-                while (!chosen || chosen.visited || (random === previousDir && sameDirInRow > 5 && possibleNeigh > 1)) {
-                    random = Math.round(Math.random() * (neighbours.length - 1))
-                    chosen = neighbours[random];
-                }
-
-                if (random === previousDir) {
-                    sameDirInRow++;
+            var current = grid[0];
+            while (current) {
+                current.visited = true;
+                if (current.hasUnvisitedNeighbour()) {
+                    var next = current.getRandomUnvisitedNeighbour();
+                    current = next;
                 } else {
-                    sameDirInRow = 0;
-                    previousDir = random;
-                }
-                this.walls[random] = false;
-                random += 2;
-                if (random > 3) {
-                    random -= 4;
-                }
-                chosen.walls[random] = false;
-                chosen.parent = this.self;
-
-                return chosen;
-            }
-
-            this.show = function() {
-                context.fillStyle = "#192841";
-                context.fillRect(this.x * tileSize, this.y * tileSize, tileSize, tileSize);
-
-                context.fillStyle = "#000000"
-                if (this.walls[0]) {
-                    context.moveTo(this.x * tileSize, this.y * tileSize);
-                    context.lineTo(this.x * tileSize + tileSize, this.y * tileSize);
-                    context.stroke();
-                }
-                if (this.walls[1]) {
-                    context.moveTo(this.x * tileSize + tileSize, this.y * tileSize);
-                    context.lineTo(this.x * tileSize + tileSize, this.y * tileSize + tileSize);
-                    context.stroke();
-                }
-                if (this.walls[2]) {
-                    context.moveTo(this.x * tileSize, this.y * tileSize + tileSize);
-                    context.lineTo(this.x * tileSize + tileSize, this.y * tileSize + tileSize);
-                    context.stroke();
-                }
-                if (this.walls[3]) {
-                    context.moveTo(this.x * tileSize, this.y * tileSize);
-                    context.lineTo(this.x * tileSize, this.y * tileSize + tileSize);
-                    context.stroke();
+                    current = current.parent;
                 }
             }
-        }   
-        $('document').ready(function() {
+
+            grid[0].walls[3] = false;
+
+            for (let i = 0; i < grid.length; i++) {
+                grid[i].show();
+            }
+            
+            
+            context.fillStyle = "#000000";
+            context.moveTo(1,26);
+            context.lineTo(1, height * tileSize - 1);
+            context.stroke(); // left
+            
+            context.moveTo(1,1);
+            context.lineTo(width * tileSize - 1, 1);
+            context.stroke(); // top
+
+            context.moveTo(width * tileSize - 1, height * tileSize - 1);
+            context.lineTo(width * tileSize - 1, 1);
+            context.stroke(); // right
+
+            context.moveTo(width * tileSize - 1, height * tileSize - 1);
+            context.lineTo(1, height * tileSize - 1);
+            context.stroke(); // bottom
+            
+            
+
+            /*
+            ==============================================
+            Objects and object methods below
+            ==============================================
+            */
+
+
+            function index(x, y) {
+                //console.log(x + " " + y + " " + (x * width + y));
+                return x * height + y;
+            }
+
+            function Cell(x, y) {
+                this.self = this;
+                this.x = x;
+                this.y = y;
+                this.visited = false;
+                this.parent = null;
+                this.walls = [true, true, true, true]; //top right bottom left
+
+                this.hasUnvisitedNeighbour = function() {
+                    if (this.y >= 1) {
+                        var top = grid[index(this.x, this.y - 1)];
+                        if (!top.visited) {
+                            return true;
+                        }
+                    }
+                    if (this.x <= width - 2) {
+                        var right = grid[index(this.x + 1, this.y)];
+                        if (!right.visited) {
+                            return true;
+                        }
+                    }
+                    if (this.y <= height - 2) {
+                        var bottom = grid[index(this.x, this.y + 1)];
+                        if (!bottom.visited) {
+                            return true;
+                        }
+                    }
+                    if (this.x >= 1) {
+                        var left = grid[index(this.x - 1, this.y)];
+                        if (!left.visited) {
+                            return true;
+                        }
+                    }
+                }
+
+                this.getRandomUnvisitedNeighbour = function() {
+                    if (!this.hasUnvisitedNeighbour) {
+                        return null;
+                    }
+
+                    var neighbours = [];
+
+                    var top = null;
+                    var right = null;
+                    var bottom = null;
+                    var left = null;
+                    var possibleNeigh = 0;
+                    if (this.y >= 1) {
+                        var top = grid[index(this.x, this.y - 1)];
+                        possibleNeigh++;
+                    }
+                    if (this.x <= width - 2) {
+                        var right = grid[index(this.x + 1, this.y)];
+                        possibleNeigh++;
+                    }
+                    if (this.y <= height - 2) {
+                        var bottom = grid[index(this.x, this.y + 1)];
+                        possibleNeigh++;
+                    }
+                    if (this.x >= 1) {
+                        var left = grid[index(this.x - 1, this.y)];
+                        possibleNeigh++;
+                    }
+                    neighbours.push(top);
+                    neighbours.push(right);
+                    neighbours.push(bottom);
+                    neighbours.push(left);
+
+                    var chosen = null;
+                    let random;
+                    while (!chosen || chosen.visited || (random === previousDir && sameDirInRow > 5 && possibleNeigh > 1)) {
+                        random = Math.round(Math.random() * (neighbours.length - 1))
+                        chosen = neighbours[random];
+                    }
+
+                    if (random === previousDir) {
+                        sameDirInRow++;
+                    } else {
+                        sameDirInRow = 0;
+                        previousDir = random;
+                    }
+                    this.walls[random] = false;
+                    random += 2;
+                    if (random > 3) {
+                        random -= 4;
+                    }
+                    chosen.walls[random] = false;
+                    chosen.parent = this.self;
+
+                    return chosen;
+                }
+
+                this.show = function() {
+                    context.fillStyle = "#192841";
+                    context.fillRect(this.x * tileSize, this.y * tileSize, tileSize, tileSize);
+
+                    context.fillStyle = "#000000"
+                    if (this.walls[0]) {
+                        context.moveTo(this.x * tileSize, this.y * tileSize);
+                        context.lineTo(this.x * tileSize + tileSize, this.y * tileSize);
+                        context.stroke();
+                    }
+                    if (this.walls[1]) {
+                        context.moveTo(this.x * tileSize + tileSize, this.y * tileSize);
+                        context.lineTo(this.x * tileSize + tileSize, this.y * tileSize + tileSize);
+                        context.stroke();
+                    }
+                    if (this.walls[2]) {
+                        context.moveTo(this.x * tileSize, this.y * tileSize + tileSize);
+                        context.lineTo(this.x * tileSize + tileSize, this.y * tileSize + tileSize);
+                        context.stroke();
+                    }
+                    if (this.walls[3]) {
+                        context.moveTo(this.x * tileSize, this.y * tileSize);
+                        context.lineTo(this.x * tileSize, this.y * tileSize + tileSize);
+                        context.stroke();
+                    }
+                }
+            }   
+        
             context.fillStyle = "#FF0000";
             context.fillRect(9, 9, 7, 7);
             var x = 9;
@@ -216,6 +248,7 @@
             var winY = -1;
             var noExit = true;
             var coins = [];
+            var inExit = false;
             var upPressed = false;
             var downPressed = false;
             var leftPressed = false;
@@ -261,7 +294,9 @@
                 };
             });
 
-            addCoins();
+            if (difficulty === "medium" || difficulty === "hard") { addCoins(); }
+            else { addExit(); noExit = false; }
+            
             update();
             var req;
 
@@ -269,6 +304,7 @@
                 setTimeout(function() {
                     oldx = x;
                     oldy = y;
+                    var gotACoin = false;
 
                     var surroundings = context.getImageData(x-1, y-1,9,9).data;
 
@@ -287,6 +323,14 @@
                             length = 8;
                         }
                         for (let i = ioffset; i < length; i++) {
+                            if (difficulty === "medium" || difficulty === "hard") {
+                                if (!rightPressed && surroundings[i * 36] == 255 && surroundings[i*36+1] == 211 && surroundings[i*36+2] == 0) {
+                                    gotACoin = true;
+                                }
+                            }
+                            if (!rightPressed && surroundings[i * 36] == 101 && surroundings[i*36+1] == 147 && surroundings[i*36+2] == 245) {
+                                inExit = true;
+                            }
                             if (surroundings[i * 36] < 5 && surroundings[i*36+1] < 5 && surroundings[i*36+2] < 5) {
                                 return false;
                             }
@@ -308,6 +352,14 @@
                             length = 8;
                         }
                         for (let i = ioffset; i < length; i++) {
+                            if (difficulty === "medium" || difficulty === "hard") {
+                                if (!leftPressed && surroundings[i * 36 + 32] == 255 && surroundings[i*36+33] == 211 && surroundings[i*36+34] == 0) {
+                                    gotACoin = true;
+                                }
+                            }
+                            if (!leftPressed && surroundings[i * 36 + 32] == 101 && surroundings[i*36+33] == 147 && surroundings[i*36+34] == 245) {
+                                inExit = true;
+                            }
                             if (surroundings[i * 36 + 32] < 5 && surroundings[i*36+33] < 5 && surroundings[i*36+34] < 5) {
                                 return false;
                             }
@@ -330,6 +382,14 @@
                         }
                         var offset = 8*36;
                         for (let i = ioffset; i < length; i++) {
+                            if (difficulty === "medium" || difficulty === "hard") {
+                                if (!upPressed && surroundings[i * 4 + offset] == 255 && surroundings[i*4+1 + offset] == 211 && surroundings[i*4+2 + offset] == 0) {
+                                    gotACoin = true;
+                                }
+                            }
+                            if (!upPressed && surroundings[i * 4 + offset] == 101 && surroundings[i*4+1 + offset] == 147 && surroundings[i*4+2 + offset] == 245) {
+                                inExit = true;
+                            }
                             if (surroundings[i * 4 + offset] < 5 && surroundings[i*4+1 + offset] < 5 && surroundings[i*4+2 + offset] < 5) {
                                 return false;
                             }
@@ -351,6 +411,14 @@
                             length = 8;
                         }
                         for (let i = ioffset; i < length; i++) {
+                            if (difficulty === "medium" || difficulty === "hard") {
+                                if (!downPressed && surroundings[i * 4] == 255 && surroundings[i*4+1] == 211 && surroundings[i*4+2] == 0) {
+                                    gotACoin = true;
+                                }
+                            }
+                            if (!downPressed && surroundings[i * 4] == 101 && surroundings[i*4+1] == 147 && surroundings[i*4+2] == 245) {
+                                inExit = true;
+                            }
                             if (surroundings[i * 4] < 5 && surroundings[i*4+1] < 5 && surroundings[i*4+2] < 5) {
                                 return false;
                             }
@@ -379,28 +447,32 @@
                         }
                     }
 
-                    let gottenCoins = [];
-                    for (let i = 0; i < coins.length; i++) {
-                        let coin = coins[i];
-                        if (x-coin.x < 0 && (x+8)-coin.x > 0 && y-coin.y < 0 && (y+8)-coin.y > 0) {
-                            console.log("gotten coin");
-                            gottenCoins.push(i);
-                            gottenCoin(i, x, y);
-                        }
-                    }
-                    for (let i = gottenCoins.length - 1; i >= 0; i--) {
-                        coins.splice(gottenCoins[i], 1);
-                        console.log(coins.length);
-                    }
-                    if (coins.length < 1 && noExit) {
-                        addExit();
-                        console.log("added exit");
-                        noExit = false;
+                    if (gotACoin && (difficulty === "medium" || difficulty === "hard")) {
+                        // let gottenCoins = [];
+                        // for (let i = 0; i < coins.length; i++) {
+                        //     let coin = coins[i];
+                        //     if (x-coin.x < 0 && (x+8)-coin.x > 0 && y-coin.y < 0 && (y+8)-coin.y > 0) {
+                        //         console.log("gotten coin");
+                        //         gottenCoins.push(i);
+                        //         gottenCoin(i);
+                        //     }
+                        // }
+                        // for (let i = gottenCoins.length - 1; i >= 0; i--) {
+                        //     coins.splice(gottenCoins[i], 1);
+                        //     console.log(coins.length);
+                        // }
+                        // if (coins.length < 1 && noExit) {
+                        //     //debugger;
+                        //     addExit();
+                        //     console.log("added exit");
+                        //     noExit = false;
+                        // }
+                        gottenCoin(x, y);
                     }
 
                     redrawPlayer(oldx, oldy, x, y);
 
-                    if (winX > -1 && winY > -1 && x >= (winX+0.25)*tileSize && x <= (winX+0.75) * tileSize && y >= (winY+0.25)*tileSize && y <= (winY+0.75) * tileSize) {
+                    if (inExit || (winX > -1 && winY > -1 && x >= (winX+0.25)*tileSize && x <= (winX+0.75) * tileSize && y >= (winY+0.25)*tileSize && y <= (winY+0.75) * tileSize)) {
                         console.log("you've won!");
                         cancelAnimationFrame(req);
                         $('#fireworks').css("display", "block");
@@ -411,6 +483,16 @@
                 }, 1000/200);
             }
 
+            function redrawGrid() {
+                for (let i = 0; i< grid.length; i++) {
+                    grid[i].show();
+                }
+
+                for (let i = 0; i < coins.length; i++) {
+                    drawEllipseByCenter(context, coins[i].x, coins[i].y, 5, 9);
+                }
+            }
+
             function redrawPlayer(oldX, oldY, newX, newY) {
                 context.fillStyle = "#192841";
                 context.fillRect(oldX, oldY, 7, 7);
@@ -418,10 +500,31 @@
                 context.fillRect(newX, newY, 7, 7);
             }
 
-            function gottenCoin(index, x, y) {
-                context.fillStyle = "#192841";
-                context.fillRect(coins[index].x-3, coins[index].y-5, 7, 11);
-                //redrawPlayer(x,y,7,7);
+            function gottenCoin(x, y) {
+                //first map x,y to the normal tileSize;
+                normalizedX = Math.floor(x/tileSize);
+                normalizedY = Math.floor(y/tileSize);
+                console.log("location: " + normalizedX + ", " + normalizedY);
+
+                var indicesToSplice = [];
+                for (let i = 0; i < coins.length; i++) {
+                    if (coins[i].tileX === normalizedX && coins[i].tileY === normalizedY) {
+                        grid[index(coins[i].tileX, coins[i].tileY)].show();
+                        indicesToSplice.push(i);
+                    }
+                }
+
+                for (let i = indicesToSplice.length - 1; i >= 0; i--) {
+                    coins.splice(indicesToSplice[i], 1);
+                    console.log(coins.length);
+                }
+
+                if (coins.length < 1 && noExit) {
+                    //debugger;
+                    addExit();
+                    console.log("added exit");
+                    noExit = false;
+                }
             }
 
             function addCoins() {
@@ -432,9 +535,10 @@
                     let tileOfCoin = grid[choice];
                     let coinX = tileOfCoin.x*tileSize+halfTile;
                     let coinY = tileOfCoin.y*tileSize+halfTile;
-                    drawEllipseByCenter(context, coinX, coinY, 5, 9);
+                    drawCoin(coinX, coinY);
+                    //drawEllipseByCenter(context, coinX, coinY, 5, 9);
 
-                    coins.push({x: coinX, y: coinY});
+                    coins.push({x: coinX, y: coinY, tileX: tileOfCoin.x, tileY: tileOfCoin.y});
                     console.log("added coin on: " + coinX + ", " + coinY);
                 }
                 console.log("number of coins: " + coins.length);
@@ -514,14 +618,21 @@
                 }
             }
 
+            function drawCoin(x, y) {
+                tx = x - 2;
+                ty = y - 4;
 
+                context.fillStyle = "#FFD300";
+                context.fillRect(x,y+2,5,5);
+                context.fillRect(x+1,y,3,9);
+            }
 
 
             function drawEllipseByCenter(ctx, cx, cy, w, h, color) {
-                drawEllipse(ctx, cx - w/2.0, cy - h/2.0, w, h, color);
+                drawEllipse(ctx, cx - w/2.0, cy - h/2.0, w, h);
             }
 
-            function drawEllipse(ctx, x, y, w, h, color) {
+            function drawEllipse(ctx, x, y, w, h) {
                 var kappa = .5522848,
                 ox = (w / 2) * kappa, // control point offset horizontal
                 oy = (h / 2) * kappa, // control point offset vertical
@@ -530,11 +641,7 @@
                 xm = x + w / 2,       // x-middle
                 ym = y + h / 2;       // y-middle
 
-                if (color) {
-                    ctx.fillStyle = color;
-                } else {
-                    ctx.fillStyle = "#FFD300";
-                }
+                ctx.fillStyle = "#6593F5";
 
                 ctx.beginPath();
                 ctx.moveTo(x, ym);
@@ -820,6 +927,6 @@
                 controller.init();
                 requestAnimationFrame(controller.animation);
             }
-        });     
+        } 
     </script>
 </body>
