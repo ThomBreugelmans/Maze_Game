@@ -432,52 +432,57 @@
             var downPressed = false;
             var leftPressed = false;
             var rightPressed = false;
-            document.getElementById("left").ontouchstart(() => {
+            var leftButton = document.getElementById("left");
+            var rightButton = document.getElementById("right");
+            var upButton = document.getElementById("up");
+            var downButton = document.getElementById("down");
+
+            leftButton.addEventListener("touchstart", () => {
                 leftPressed = true;
             });
             $('#left').mousedown(() => {
                 leftPressed = true;
             });
-            document.getElementById("left").ontouchend(() => {
+            leftButton.addEventListener("touchstart", () => {
                 leftPressed = false;
             });
             $('#left').mouseup(() => {
                 leftPressed = false;
             });
 
-            document.getElementById("right").ontouchstart(() => {
+            rightButton.addEventListener("touchstart", () => {
                 rightPressed = true;
             });
             $('#right').mousedown(() => {
                 rightPressed = true;
             });
-            document.getElementById("right").ontouchend(() => {
+            rightButton.addEventListener("touchstart", () => {
                 rightPressed = false;
             });
             $('#right').mouseup(() => {
                 rightPressed = false;
             });
 
-            document.getElementById("up").ontouchstart(() => {
+            upButton.addEventListener("touchstart", () => {
                 upPressed = true;
             });
             $('#up').mousedown(() => {
                 upPressed = true;
             });
-            document.getElementById("up").ontouchend(() => {
+            upButton.addEventListener("touchstart", () => {
                 upPressed = false;
             });
             $('#up').mouseup(() => {
                 upPressed = false;
             });
 
-            document.getElementById("down").ontouchstart(() => {
+            downButton.addEventListener("touchstart", () => {
                 downPressed = true;
             });
             $('#down').mousedown(() => {
                 downPressed = true;
             });
-            document.getElementById("down").ontouchend(() => {
+            downButton.addEventListener("touchstart", () => {
                 downPressed = false;
             });
             $('#down').mouseup(() => {
