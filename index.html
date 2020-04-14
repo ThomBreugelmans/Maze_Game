@@ -3,6 +3,38 @@
     <title>A maze game</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet"> 
+    <style>
+        #up, #down, #left, #right {
+            display: none;
+            background-color: rgba(32, 32, 32, 0.76);
+            color: white;
+        }
+        #up {
+            left: 50%;
+            top: 100%;
+            transform: translate3d(-50%, -320%, 0);
+        }
+        #down {
+            left: 50%;
+            top: 100%;
+            transform: translate3d(-50%, -200%, 0);
+        }
+        #left {
+            left: 25%;
+            top: 100%;
+            transform: translate3d(-110%, -128px, 0);
+        }
+        #right {
+            left: 75%;
+            top: 100%;
+            transform: translate3d(10%, -128px, 0);
+        }
+        @media only screen and (max-width: 650px) {
+            #up, #down, #left, #right {
+                display: block;
+            }
+        }
+    </style>
 </head>
 <body style="background-color: black;">
     <div style="text-align: center;">
@@ -26,6 +58,10 @@
         </div>
         <canvas id="fireworks" width="100%" height="100%" style="display: none; position: absolute; top: 0; left: 0; z-index: 1;"></canvas>
     </div>
+    <button id="left" style="position: fixed; width: 50px; height: 88px; z-index: 5;">◄</button>
+    <button id="right" style="position: fixed; width: 50px; height: 88px; z-index: 5;">►</button>
+    <button id="up" style="position: fixed; width: 50%; height: 40px; z-index: 5;">▲</button>
+    <button id="down" style="position: fixed; width: 50%; height: 40px; z-index: 5;">▼</button>
     <script>
         var difficulty = undefined;
         var differentAlgo = false;
@@ -118,7 +154,11 @@
             overlay.width = width * tileSize;
             overlay.height = height * tileSize;
 
-            $('#canvaswrapper').css("left", (screen.width-canvas.width)/2);
+            if (screen.width-canvas.width > 0) {
+                $('#canvaswrapper').css("left", (screen.width-canvas.width)/2);
+            } else {
+                $('#canvaswrapper').css("left", 0);
+            }
             
             let grid = [];
             let cells = [];
@@ -388,6 +428,34 @@
                 }
             }   
         
+            var upPressed = false;
+            var downPressed = false;
+            var leftPressed = false;
+            var rightPressed = false;
+            $('#left').mousedown(() => {
+                leftPressed = true;
+            });
+            $('#left').mouseup(() => {
+                leftPressed = false;
+            });
+            $('#right').mousedown(() => {
+                rightPressed = true;
+            });
+            $('#right').mouseup(() => {
+                rightPressed = false;
+            });
+            $('#up').mousedown(() => {
+                upPressed = true;
+            });
+            $('#up').mouseup(() => {
+                upPressed = false;
+            });
+            $('#down').mousedown(() => {
+                downPressed = true;
+            });
+            $('#down').mouseup(() => {
+                downPressed = false;
+            });
             context.fillStyle = "#FF0000";
             context.fillRect(9, 9, 7, 7);
             var startTime = Date.now();
@@ -402,10 +470,6 @@
             var noExit = true;
             var coins = [];
             var inExit = false;
-            var upPressed = false;
-            var downPressed = false;
-            var leftPressed = false;
-            var rightPressed = false;
 
             document.addEventListener("keydown", (e) => {
                 switch (e.keyCode) {
