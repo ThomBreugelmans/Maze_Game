@@ -1,5 +1,5 @@
 # Maze_Game
-A maze game made by yours truly
+A maze game made by yours truly, I am a student at the TU Delft in the Netherlands and because I was bored I made this :smiley_face: I hope you like it and hit me up if you want to add some changes or have some questions/additions! (I think the issues board would be best for this? And otherwise I think you can find my email) (for personal reference: 04-14-2020)
 
 ## Description
 This is a maze game generated using recursive backtracking, after the game is generated you will be able to play!
