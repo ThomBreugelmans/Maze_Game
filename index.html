@@ -432,26 +432,53 @@
             var downPressed = false;
             var leftPressed = false;
             var rightPressed = false;
+            document.getElementById("left").ontouchstart(() => {
+                leftPressed = true;
+            });
             $('#left').mousedown(() => {
                 leftPressed = true;
+            });
+            document.getElementById("left").ontouchend(() => {
+                leftPressed = false;
             });
             $('#left').mouseup(() => {
                 leftPressed = false;
             });
+
+            document.getElementById("right").ontouchstart(() => {
+                rightPressed = true;
+            });
             $('#right').mousedown(() => {
                 rightPressed = true;
+            });
+            document.getElementById("right").ontouchend(() => {
+                rightPressed = false;
             });
             $('#right').mouseup(() => {
                 rightPressed = false;
             });
+
+            document.getElementById("up").ontouchstart(() => {
+                upPressed = true;
+            });
             $('#up').mousedown(() => {
                 upPressed = true;
+            });
+            document.getElementById("up").ontouchend(() => {
+                upPressed = false;
             });
             $('#up').mouseup(() => {
                 upPressed = false;
             });
+
+            document.getElementById("down").ontouchstart(() => {
+                downPressed = true;
+            });
             $('#down').mousedown(() => {
                 downPressed = true;
+            });
+            document.getElementById("down").ontouchend(() => {
+                downPressed = false;
             });
             $('#down').mouseup(() => {
                 downPressed = false;
