@@ -39,6 +39,7 @@
             position: relative;
             left: 50%;
             transform: translateX(-50%);
+            z-index: 3;
         }
         #maze, #maze-overlay {
             position: absolute;
@@ -64,7 +65,7 @@
         <br>
         <hr>
         <br><br><br>
-        <p id="timer" style="position: relative; width: 50%; margin-left: 25%; margin-right: 25%; font-family: 'Roboto', sans-serif; color: lightgray; text-align: center;">0H 0m 0s</p>
+        <p id="timer" style="position: relative; width: 50%; margin-left: 25%; margin-right: 25%; font-family: 'Roboto', sans-serif; color: lightgray; text-align: center; z-index: 4;">0H 0m 0s</p>
         <div id="canvaswrapper">
             <canvas id="maze" style="z-index: 2;"></canvas>
             <canvas id="maze-overlay" style="display: none; z-index: 3;"></canvas>
