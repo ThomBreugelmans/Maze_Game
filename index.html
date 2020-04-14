@@ -7,9 +7,9 @@
     <div style="text-align: center;">
         <h1 style="color: lightgray;">THE MAZE GAME</h1>
         <div id="flexbox" style="display: flexbox; justify-content: space-evenly; margin-left: auto; margin-right: auto;">
-            <button onclick="selectEasy()">Easy</button>
-            <button onclick="selectMedium()">Medium</button>
-            <button onclick="selectHard()">Hard</button>
+            <button id="easy" onclick="selectEasy()">Easy</button>
+            <button id="medium" onclick="selectMedium()">Medium</button>
+            <button id="hard" onclick="selectHard()">Hard</button>
         </div>
         <br>
         <hr>
@@ -23,18 +23,27 @@
         function selectEasy() {
             console.log("easy");
             difficulty = "easy";
+            $('#easy').attr("disabled", true);
+            $('#medium').attr("disabled", true);
+            $('#hard').attr("disabled", true);
             start();
         }
 
         function selectMedium() {
             console.log("medium");
             difficulty = "medium";
+            $('#easy').attr("disabled", true);
+            $('#medium').attr("disabled", true);
+            $('#hard').attr("disabled", true);
             start();
         }
 
         function selectHard() {
             console.log("hard");
             difficulty = "hard";
+            $('#easy').attr("disabled", true);
+            $('#medium').attr("disabled", true);
+            $('#hard').attr("disabled", true);
             start();
         }
 
