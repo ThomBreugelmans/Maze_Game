@@ -7,7 +7,7 @@
         #up, #down, #left, #right {
             display: none;
             background-color: rgba(32, 32, 32, 0.76);
-            font-size: calc(1em + 1.5vh);
+            font-size: calc(1em + 2vh);
             color: white;
         }
         #up {
@@ -21,12 +21,12 @@
             transform: translate3d(-50%, -100%, 0);
         }
         #left {
-            left: 25%;
+            left: 22%;
             top: 95%;
             transform: translate3d(-110%, -100%, 0);
         }
         #right {
-            left: 75%;
+            left: 78%;
             top: 95%;
             transform: translate3d(10%, -100%, 0);
         }
@@ -53,14 +53,14 @@
         <hr>
         <br><br><br>
         <p id="timer" style="position: relative; width: 50%; margin-left: 25%; margin-right: 25%; font-family: 'Roboto', sans-serif; color: lightgray; text-align: center;">0H 0m 0s</p>
-        <div id="canvaswrapper" width="150" height="100" style="position: relative; left: 40%;">
-            <canvas id="maze" width="150" height="100" style="position: absolute; top: 0px; left: 0px; z-index: 2;"></canvas>
-            <canvas id="maze-overlay" width="150" height="100" style="display: none; position: absolute; top: 0px; left: 0px; z-index: 3;"></canvas>
+        <div id="canvaswrapper" width="150" height="100" style="position: relative;">
+            <canvas id="maze" width="150" height="100" style="position: absolute; top: 0px; left: 0px; z-index: 2; padding-bottom: 50%;"></canvas>
+            <canvas id="maze-overlay" width="150" height="100" style="display: none; position: absolute; top: 0px; left: 0px; z-index: 3; padding-bottom: 50%;"></canvas>
         </div>
         <canvas id="fireworks" width="100%" height="100%" style="display: none; position: absolute; top: 0; left: 0; z-index: 1;"></canvas>
     </div>
-    <button id="left" style="position: fixed; width: 10%; height: 22%; z-index: 5;">◄</button>
-    <button id="right" style="position: fixed; width: 10%; height: 22%; z-index: 5;">►</button>
+    <button id="left" style="position: fixed; width: 15%; height: 22%; z-index: 5;">◄</button>
+    <button id="right" style="position: fixed; width: 15%; height: 22%; z-index: 5;">►</button>
     <button id="up" style="position: fixed; width: 50%; height: 10%; z-index: 5;">▲</button>
     <button id="down" style="position: fixed; width: 50%; height: 10%; z-index: 5;">▼</button>
     <script>
@@ -155,8 +155,11 @@
             overlay.width = width * tileSize;
             overlay.height = height * tileSize;
 
+            console.log(screen.width + " " + canvas.width)
             if (screen.width-canvas.width > 0) {
                 $('#canvaswrapper').css("left", (screen.width-canvas.width)/2);
+                //$('#canvaswrapper').css("left", "50%");
+                //$('#canvaswrapper').css("transform", "translateX(-50%)");
             } else {
                 $('#canvaswrapper').css("left", 0);
             }
