@@ -10,12 +10,17 @@
             <button id="easy" onclick="selectEasy()">Easy</button>
             <button id="medium" onclick="selectMedium()">Medium</button>
             <button id="hard" onclick="selectHard()">Hard</button>
+            <button id="monster" onclick="selectMonster()">Monster Difficulty*</button>
         </div>
+        <p style="color: lightgray;">*<i>Warning, this mode is extremely dangerous, and takes a long time to load, please be patient!</i></p>
         <br>
         <hr>
         <br><br><br>
-        <canvas id="maze" width="150" height="100"></canvas>
-        <canvas id="fireworks" width="100%" height="100%" style="display: none; position: absolute; top: 0; left: 0;"></canvas>
+        <div id="canvaswrapper" width="150" height="100" style="position: relative; left: 40%;">
+            <canvas id="maze" width="150" height="100" style="position: absolute; top: 0px; left: 0px; z-index: 2;"></canvas>
+            <canvas id="maze-overlay" width="150" height="100" style="display: none; position: absolute; top: 0px; left: 0px; z-index: 3;"></canvas>
+        </div>
+        <canvas id="fireworks" width="100%" height="100%" style="display: none; position: absolute; top: 0; left: 0; z-index: 1;"></canvas>
     </div>
     <script>
         var difficulty = undefined;
@@ -26,6 +31,7 @@
             $('#easy').attr("disabled", true);
             $('#medium').attr("disabled", true);
             $('#hard').attr("disabled", true);
+            $('#monster').attr("disabled", true);
             start();
         }
 
@@ -35,6 +41,7 @@
             $('#easy').attr("disabled", true);
             $('#medium').attr("disabled", true);
             $('#hard').attr("disabled", true);
+            $('#monster').attr("disabled", true);
             start();
         }
 
@@ -44,6 +51,19 @@
             $('#easy').attr("disabled", true);
             $('#medium').attr("disabled", true);
             $('#hard').attr("disabled", true);
+            $('#monster').attr("disabled", true);
+            $('#maze-overlay').css("display", "block");
+            start();
+        }
+
+        function selectMonster() {
+            console.log("Monster Difficult");
+            difficulty = "monster";
+            $('#easy').attr("disabled", true);
+            $('#medium').attr("disabled", true);
+            $('#hard').attr("disabled", true);
+            $('#monster').attr("disabled", true);
+            $('#maze-overlay').css("display", "block");
             start();
         }
 
@@ -55,9 +75,13 @@
                 var width = 30;
                 var height = 25;
             }
+            if (difficulty === "monster") {
+                var width = 40;
+                var height = 35;
+            }
             var sameDirInRow = 0;
             var previousDir = -1;
-            if (difficulty === "medium" || difficulty === "hard") {
+            if (difficulty === "medium" || difficulty === "hard" || difficulty === "monster") {
                 var coinAmount = Math.round(Math.random() * 6); // these coins will spawn randomly which you need to get in order to be able to see the exit.
                 while (coinAmount < 3) {
                     //we do not want less than 3 coins
@@ -66,8 +90,14 @@
             }
             const canvas = document.getElementById("maze");
             const context = canvas.getContext("2d");
+            const overlay = document.getElementById("maze-overlay");
+            const ctxOverlay = overlay.getContext("2d");
             canvas.width = width * tileSize;
             canvas.height = height * tileSize;
+            overlay.width = width * tileSize;
+            overlay.height = height * tileSize;
+
+            $('#canvaswrapper').css("left", (screen.width-canvas.width)/2);
             
             let grid = [];
             for (let x = 0; x < width; x++) {
@@ -255,6 +285,8 @@
             var oldy = y;
             var winX = -1;
             var winY = -1;
+            var centerExitX = -1;
+            var centerExitY = 1;
             var noExit = true;
             var coins = [];
             var inExit = false;
@@ -303,7 +335,7 @@
                 };
             });
 
-            if (difficulty === "medium" || difficulty === "hard") { addCoins(); }
+            if (difficulty === "medium" || difficulty === "hard" || difficulty === "monster") { addCoins(); }
             else { addExit(); noExit = false; }
             
             update();
@@ -332,7 +364,7 @@
                             length = 8;
                         }
                         for (let i = ioffset; i < length; i++) {
-                            if (difficulty === "medium" || difficulty === "hard") {
+                            if (difficulty === "medium" || difficulty === "hard" || difficulty === "monster") {
                                 if (!rightPressed && surroundings[i * 36] == 255 && surroundings[i*36+1] == 211 && surroundings[i*36+2] == 0) {
                                     gotACoin = true;
                                 }
@@ -361,7 +393,7 @@
                             length = 8;
                         }
                         for (let i = ioffset; i < length; i++) {
-                            if (difficulty === "medium" || difficulty === "hard") {
+                            if (difficulty === "medium" || difficulty === "hard" || difficulty === "monster") {
                                 if (!leftPressed && surroundings[i * 36 + 32] == 255 && surroundings[i*36+33] == 211 && surroundings[i*36+34] == 0) {
                                     gotACoin = true;
                                 }
@@ -391,7 +423,7 @@
                         }
                         var offset = 8*36;
                         for (let i = ioffset; i < length; i++) {
-                            if (difficulty === "medium" || difficulty === "hard") {
+                            if (difficulty === "medium" || difficulty === "hard" || difficulty === "monster") {
                                 if (!upPressed && surroundings[i * 4 + offset] == 255 && surroundings[i*4+1 + offset] == 211 && surroundings[i*4+2 + offset] == 0) {
                                     gotACoin = true;
                                 }
@@ -420,7 +452,7 @@
                             length = 8;
                         }
                         for (let i = ioffset; i < length; i++) {
-                            if (difficulty === "medium" || difficulty === "hard") {
+                            if (difficulty === "medium" || difficulty === "hard" || difficulty === "monster") {
                                 if (!downPressed && surroundings[i * 4] == 255 && surroundings[i*4+1] == 211 && surroundings[i*4+2] == 0) {
                                     gotACoin = true;
                                 }
@@ -456,7 +488,7 @@
                         }
                     }
 
-                    if (gotACoin && (difficulty === "medium" || difficulty === "hard")) {
+                    if (gotACoin && (difficulty === "medium" || difficulty === "hard" || difficulty === "monster")) {
                         // let gottenCoins = [];
                         // for (let i = 0; i < coins.length; i++) {
                         //     let coin = coins[i];
@@ -507,6 +539,13 @@
                 context.fillRect(oldX, oldY, 7, 7);
                 context.fillStyle = "#FF0000";
                 context.fillRect(newX, newY, 7, 7);
+
+                if (difficulty === "hard") {
+                    drawLight(ctxOverlay, newX - 3, newY - 3, 40);
+                }
+                if (difficulty === "monster") {
+                    drawLight(ctxOverlay, newX - 3, newY - 3, 28);
+                }
             }
 
             function gottenCoin(x, y) {
@@ -592,6 +631,9 @@
                     context.stroke(); //top
 
                     drawEllipseByCenter(context, winX*tileSize+13, 0, 25, 25, "#6593F5");
+
+                    centerExitX = winX*tileSize + 13;
+                    centerExitY = 0;
                 }
                 if (side === 1) {
                     context.fillStyle = "#192841";
@@ -608,6 +650,9 @@
                     context.stroke(); // right
 
                     drawEllipseByCenter(context, (winX+1)*tileSize, winY*tileSize+13, 25, 25, "#6593F5");
+
+                    centerExitX = width*tileSize;
+                    centerExitY = winY*tileSize + 13;
                 }
                 if (side === 2) {
                     context.fillStyle = "#192841";
@@ -624,6 +669,9 @@
                     context.stroke(); // bottom
 
                     drawEllipseByCenter(context, winX*tileSize+13, (winY+1)*tileSize, 25, 25, "#6593F5");
+
+                    centerExitX = winX*tileSize + 13;
+                    centerExitY = height*tileSize;
                 }
             }
 
@@ -660,6 +708,27 @@
                 ctx.bezierCurveTo(xm - ox, ye, x, ym + oy, x, ym);
                 //ctx.closePath(); // not used correctly, see comments (use to close off open path)
                 ctx.fill();
+            }
+
+            function drawLight(ctx, cx, cy, r) {
+                ctx.fillStyle = "#000000";
+                ctx.fillRect(0,0,overlay.width,overlay.height);
+
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+                ctx.clip();
+                ctx.clearRect(0, 0, overlay.width, overlay.height);
+                ctx.restore();
+
+                if (!noExit) {
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(centerExitX, centerExitY, 35, 0, 2 * Math.PI);
+                    ctx.clip();
+                    ctx.clearRect(0, 0, overlay.width, overlay.height);
+                    ctx.restore();
+                }
             }
 
 
