@@ -439,12 +439,14 @@
 
             leftButton.addEventListener("touchstart", function(ev) {
                 leftPressed = true;
+                ev.preventDefault();
             }, false);
             $('#left').mousedown(() => {
                 leftPressed = true;
             });
-            leftButton.addEventListener("touchstart", function(ev) {
+            leftButton.addEventListener("touchend", function(ev) {
                 leftPressed = false;
+                ev.preventDefault();
             }, false);
             $('#left').mouseup(() => {
                 leftPressed = false;
@@ -452,12 +454,14 @@
 
             rightButton.addEventListener("touchstart", function(ev) {
                 rightPressed = true;
+                ev.preventDefault();
             }, false);
             $('#right').mousedown(() => {
                 rightPressed = true;
             });
-            rightButton.addEventListener("touchstart", function(ev) {
+            rightButton.addEventListener("touchend", function(ev) {
                 rightPressed = false;
+                ev.preventDefault();
             }, false);
             $('#right').mouseup(() => {
                 rightPressed = false;
@@ -465,12 +469,14 @@
 
             upButton.addEventListener("touchstart", function(ev) {
                 upPressed = true;
+                ev.preventDefault();
             }, false);
             $('#up').mousedown(() => {
                 upPressed = true;
             });
-            upButton.addEventListener("touchstart", function(ev) {
+            upButton.addEventListener("touchend", function(ev) {
                 upPressed = false;
+                ev.preventDefault();
             }, false);
             $('#up').mouseup(() => {
                 upPressed = false;
@@ -478,12 +484,14 @@
 
             downButton.addEventListener("touchstart", function(ev) {
                 downPressed = true;
+                ev.preventDefault();
             }, false);
             $('#down').mousedown(() => {
                 downPressed = true;
             });
-            downButton.addEventListener("touchstart", function(ev) {
+            downButton.addEventListener("touchend", function(ev) {
                 downPressed = false;
+                ev.preventDefault();
             }, false);
             $('#down').mouseup(() => {
                 downPressed = false;
