@@ -34,6 +34,10 @@
             #up, #down, #left, #right {
                 display: block;
             }
+            #canvaswrapper, #maze, #maze-overlay {
+                left: 0%;
+                transform: 0;
+            }
         }
         #canvaswrapper {
             position: relative;
@@ -54,6 +58,7 @@
     <div style="text-align: center;">
         <h1 style="color: lightgray;">THE MAZE GAME</h1>
         <div id="flexbox" style="display: flexbox; justify-content: space-evenly; margin-left: auto; margin-right: auto;">
+            <input type="number" id="speed" name="speed" value="1" min="1" max="10">
             <button id="easy" onclick="selectEasy()">Easy</button>
             <button id="medium" onclick="selectMedium()">Medium</button>
             <button id="hard" onclick="selectHard()">Hard</button>
@@ -701,25 +706,25 @@
                         }
                         return true;
                     }
-
+                    
                     if (upPressed && allowedUp()) {
                         if (y > 0) {
-                            y -= 1;
+                            y -= speed;
                         }
                     }
                     if (leftPressed && allowedLeft()) {
                         if (x > 0) {
-                            x -= 1;
+                            x -= speed;
                         }
                     }
                     if (downPressed && allowedDown()) {
                         if (y < height * tileSize - 7) {
-                            y += 1; 
+                            y += speed; 
                         }
                     }
                     if (rightPressed && allowedRight()) {
                         if (x < width * tileSize - 7) {
-                            x += 1; 
+                            x += speed; 
                         }
                     }
 
@@ -756,7 +761,7 @@
                     } else {
                         req = requestAnimationFrame(update);
                     }
-                }, 1000/200);
+                }, 1000/200 * document.querySelector('#speed').value);
             }
 
             function redrawGrid() {
