@@ -1,9 +1,66 @@
 <!DOCTYPE html>
 <head>
     <title>A maze game</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet"> 
     <style>
+        body {
+            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        button {
+            font-size: 1.2em;
+        }
+
+
+        #configure-menu {
+            display: none;
+
+            position: absolute;
+            top: 135px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10000;
+
+            padding: 20px 50px 75px 50px;
+            background-color: rgb(94, 73, 104);
+            border-radius: 30px;
+            color: lightgray;
+        }
+        #configure-menu > div {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 30px;
+        }
+
+        .dropdown-menu-arrow {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translate3d(-50%, -100%, 0);
+        }
+
+        #close-configure-menu-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        #close-configure-menu-btn:hover {
+            cursor: pointer;
+        }
+
+        #generate-maze-btn {
+            margin-top: 30px;
+        }
+
+        #generate-maze-btn, #configure-btn {
+            padding: 10px 30px 10px 30px;
+            background-color: rgb(94, 49, 94);
+            color: lightgray;
+            border: none;
+            border-radius: 20px;
+        }
+        
+        
         #up, #down, #left, #right {
             display: none;
             background-color: rgba(32, 32, 32, 0.76);
@@ -54,20 +111,41 @@
         }
     </style>
 </head>
-<body style="background-color: black;">
+<body style="background-color: rgb(27, 18, 29);">
+    <div id="configure-menu">
+        <svg height="15" width="40" class="dropdown-menu-arrow">
+            <polygon points="20,0 21,0 22,0 23,1 24,1 25,3 26,4 40,15 0,15 16,1 15,3 14,4 17,1 18,0 19,0" fill="rgb(94, 73, 104)"/>
+        </svg>
+        <div id="close-configure-menu-btn" onclick="document.getElementById('configure-menu').style.display = 'none'">
+            <svg width="10" height="10">
+                <line x1="0" y1="0" x2="10" y2="10" stroke="lightgray" />
+                <line x1="0" y1="10" x2="10" y2="0" stroke="lightgray" />
+            </svg>
+        </div>
+
+        <div>
+            <h3 style="border-bottom-style: solid; border-bottom-width: 1px; margin-bottom: 0;">Configuration Menu</h3>
+            <div style="display: flex; justify-content: space-between; flex-direction: row; gap: 20px;">
+                <span><p style="color: lightgray; margin: 5px 5px 5px 2px;">Width:</p><input type="number" style="width: 60px" id="width" name="width" value="30" min="5" max="100"></span>
+                <span><p style="color: lightgray; margin: 5px 5px 5px 2px;">Height:</p><input type="number" style="width: 60px" id="height" name="height" value="30" min="5" max="100"></span>
+            </div>
+            <div>
+                <input type="checkbox" id="coins" name="coins" />
+                    <label for="coins">enable coins</label>
+            </div>
+            <div>
+                <input type="checkbox" id="flashlight" name="flashlight" />
+                    <label for="flashlight">enable flashlight</label>
+            </div>
+
+            <button id="generate-maze-btn" onclick="">Generate/Start</button>
+        </div>
+    </div>
     <div style="text-align: center;">
         <h1 style="color: lightgray;">THE MAZE GAME</h1>
+        <button id="configure-btn" onclick="document.getElementById('configure-menu').style.display = 'block'">Configure Maze</button>
         <div id="flexbox" style="display: flexbox; justify-content: space-evenly; margin-left: auto; margin-right: auto;">
-            <input type="number" id="width" name="width" value="30" min="5" max="100">
-            <input type="number" id="height" name="height" value="30" min="5" max="100">
-            <button id="easy" onclick="selectEasy()">Easy</button>
-            <button id="medium" onclick="selectMedium()">Medium</button>
-            <button id="hard" onclick="selectHard()">Hard</button>
-            <button id="monster" onclick="selectMonster()">Monster Difficulty*</button>
-            <input type="checkbox" id="otherAlgo" name="otherAlgo" value="otherAlgo">
-                <label for="otherAlgo" style="color: lightgray;">different maze gen algorithm</label><br>
         </div>
-        <p style="color: lightgray;">*<i>Warning, this mode is extremely dangerous, and takes a long time to load, please be patient!</i></p>
         <br>
         <hr>
         <br><br><br>
@@ -89,7 +167,7 @@
         function selectEasy() {
             console.log("easy");
             difficulty = "easy";
-            if ($('#otherAlgo').prop("checked") === true) {
+            if (document.getElementById('otherAlgo').checked) {
                 differentAlgo = true;
             }
             $('#otherAlgo').attr("disabled", true);
