@@ -1,9 +1,78 @@
 <!DOCTYPE html>
 <head>
     <title>A maze game</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet"> 
     <style>
+        * {
+            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            min-height: 90vh;
+        }
+
+        button {
+            font-size: 1.2em;
+        }
+
+
+        #configure-menu {
+            display: none;
+
+            position: absolute;
+            top: 135px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10000;
+
+            padding: 20px 50px 75px 50px;
+            background-color: rgb(94, 73, 104);
+            border-radius: 30px;
+            color: lightgray;
+        }
+        #configure-menu > div {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 30px;
+        }
+        #configure-menu > div > div:first-of-type {
+            display: flex; 
+            justify-content: space-between; 
+            flex-direction: row; 
+            gap: 20px;
+        }
+
+        .dropdown-menu-arrow {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translate3d(-50%, -100%, 0);
+        }
+
+        #close-configure-menu-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        #close-configure-menu-btn:hover {
+            cursor: pointer;
+        }
+        #close-configure-menu-btn > #b {
+            display:none;
+        }
+
+        #generate-maze-btn {
+            margin-top: 30px;
+        }
+
+        #generate-maze-btn, #configure-btn {
+            padding: 10px 30px 10px 30px;
+            background-color: rgb(94, 49, 94);
+            color: lightgray;
+            border: none;
+            border-radius: 20px;
+        }
+        
+        
         #up, #down, #left, #right {
             display: none;
             background-color: rgba(32, 32, 32, 0.76);
@@ -30,15 +99,6 @@
             top: 95%;
             transform: translate3d(10%, -100%, 0);
         }
-        @media only screen and (max-width: 1500px) {
-            #up, #down, #left, #right {
-                display: block;
-            }
-            #canvaswrapper, #maze, #maze-overlay {
-                left: 0%;
-                transform: 0;
-            }
-        }
         #canvaswrapper {
             position: relative;
             left: 50%;
@@ -52,22 +112,91 @@
             transform: translateX(-50%);
             margin-bottom: 50%;
         }
+        @media only screen and (max-width: 1500px) {
+            #close-configure-menu-btn > #a {
+                display: none;
+            }
+            #close-configure-menu-btn > #b {
+                display: block;
+            }
+
+            #configure-menu {
+                top: 0;
+                min-width: 100vw;
+                min-height:100vh;
+                padding-top: 50px;
+            }
+            #configure-menu > div:first-of-type {
+                top: 50px;
+                right: 50px;
+            }
+            #configure-menu > div:last-of-type {
+                font-size: 3em;
+                position: absolute;
+                left:50%;
+                transform: translateX(-50%);
+            }
+            #configure-menu > div > div:first-of-type {
+                justify-content: space-around;
+            }
+            #width #height {
+                font-size: 3em;
+            }
+
+            button {
+                font-size: 50px;
+                width: 80vw;
+            }
+
+            #up, #down, #left, #right {
+                display: block;
+            }
+        }
     </style>
 </head>
-<body style="background-color: black;">
+<body style="background-color: rgb(27, 18, 29);">
+    <div id="configure-menu">
+        <svg height="15" width="40" class="dropdown-menu-arrow">
+            <polygon points="20,0 21,0 22,0 23,1 24,1 25,3 26,4 40,15 0,15 16,1 15,3 14,4 17,1 18,0 19,0" fill="rgb(94, 73, 104)"/>
+        </svg>
+        <div id="close-configure-menu-btn" ontouch="document.getElementById('configure-menu').style.display = 'none'" onclick="document.getElementById('configure-menu').style.display = 'none'">
+            <svg id="a" width="10" height="10">
+                <line x1="0" y1="0" x2="10" y2="10" stroke="lightgray" />
+                <line x1="0" y1="10" x2="10" y2="0" stroke="lightgray" />
+            </svg>
+            <svg id="b" width="50" height="50">
+                <line x1="0" y1="0" x2="50" y2="50" stroke="lightgray" stroke-width="3" />
+                <line x1="0" y1="50" x2="50" y2="0" stroke="lightgray" stroke-width="3" />
+            </svg>
+        </div>
+
+        <div>
+            <h3 style="border-bottom-style: solid; border-bottom-width: 1px; margin-bottom: 0;">Configuration Menu</h3>
+            <div>
+                <span><p style="color: rgb(211, 211, 211); margin: 5px 5px 5px 2px;">Width:</p><input type="number" id="width" name="width" value="30" min="5" max="100"></span>
+                <span><p style="color: lightgray; margin: 5px 5px 5px 2px;">Height:</p><input type="number" id="height" name="height" value="30" min="5" max="100"></span>
+            </div>
+            <div>
+                <input type="number" id="speed" name="speed" value="1.0" min="0.5" max="2.0" step="0.1" />
+                    <label for="coins">speed multiplier</label>
+            </div>
+            <div>
+                <input type="checkbox" id="coins" name="coins" />
+                    <label for="coins">enable coins</label>
+            </div>
+            <div>
+                <input type="checkbox" id="flashlight" name="flashlight" />
+                    <label for="flashlight">enable flashlight</label>
+            </div>
+
+            <button id="generate-maze-btn" ontouch="start()" onclick="start()">Generate/Start</button>
+        </div>
+    </div>
     <div style="text-align: center;">
         <h1 style="color: lightgray;">THE MAZE GAME</h1>
+        <button id="configure-btn" ontouch="document.getElementById('configure-menu').style.display = 'block'" onclick="document.getElementById('configure-menu').style.display = 'block'">Configure Maze</button>
         <div id="flexbox" style="display: flexbox; justify-content: space-evenly; margin-left: auto; margin-right: auto;">
-            <input type="number" id="width" name="width" value="30" min="5" max="100">
-            <input type="number" id="height" name="height" value="30" min="5" max="100">
-            <button id="easy" onclick="selectEasy()">Easy</button>
-            <button id="medium" onclick="selectMedium()">Medium</button>
-            <button id="hard" onclick="selectHard()">Hard</button>
-            <button id="monster" onclick="selectMonster()">Monster Difficulty*</button>
-            <input type="checkbox" id="otherAlgo" name="otherAlgo" value="otherAlgo">
-                <label for="otherAlgo" style="color: lightgray;">different maze gen algorithm</label><br>
         </div>
-        <p style="color: lightgray;">*<i>Warning, this mode is extremely dangerous, and takes a long time to load, please be patient!</i></p>
         <br>
         <hr>
         <br><br><br>
@@ -83,173 +212,163 @@
     <button id="up" style="position: fixed; width: 50%; height: 10%; z-index: 5;">▲</button>
     <button id="down" style="position: fixed; width: 50%; height: 10%; z-index: 5;">▼</button>
     <script>
-        var difficulty = undefined;
-        var differentAlgo = false;
+        function shuffle(array) {
+            let currentIndex = array.length,  randomIndex;
 
-        function selectEasy() {
-            console.log("easy");
-            difficulty = "easy";
-            if ($('#otherAlgo').prop("checked") === true) {
-                differentAlgo = true;
-            }
-            $('#otherAlgo').attr("disabled", true);
-            $('#easy').attr("disabled", true);
-            $('#medium').attr("disabled", true);
-            $('#hard').attr("disabled", true);
-            $('#monster').attr("disabled", true);
-            start();
-        }
+            // While there remain elements to shuffle.
+            while (currentIndex != 0) {
 
-        function selectMedium() {
-            console.log("medium");
-            difficulty = "medium";
-            if ($('#otherAlgo').prop("checked") === true) {
-                differentAlgo = true;
-            }
-            $('#otherAlgo').attr("disabled", true);
-            $('#easy').attr("disabled", true);
-            $('#medium').attr("disabled", true);
-            $('#hard').attr("disabled", true);
-            $('#monster').attr("disabled", true);
-            start();
-        }
+                // Pick a remaining element.
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
 
-        function selectHard() {
-            console.log("hard");
-            difficulty = "hard";
-            if ($('#otherAlgo').prop("checked") === true) {
-                differentAlgo = true;
+                // And swap it with the current element.
+                [array[currentIndex], array[randomIndex]] = [
+                array[randomIndex], array[currentIndex]];
             }
-            $('#otherAlgo').attr("disabled", true);
-            $('#easy').attr("disabled", true);
-            $('#medium').attr("disabled", true);
-            $('#hard').attr("disabled", true);
-            $('#monster').attr("disabled", true);
-            $('#maze-overlay').css("display", "block");
-            start();
-        }
 
-        function selectMonster() {
-            console.log("Monster Difficult");
-            difficulty = "monster";
-            if ($('#otherAlgo').prop("checked") === true) {
-                differentAlgo = true;
-            }
-            $('#otherAlgo').attr("disabled", true);
-            $('#easy').attr("disabled", true);
-            $('#medium').attr("disabled", true);
-            $('#hard').attr("disabled", true);
-            $('#monster').attr("disabled", true);
-            $('#maze-overlay').css("display", "block");
-            start();
+            return array;
         }
 
         function start() {
+            document.getElementById('configure-btn').disabled = true;
+            document.getElementById('generate-maze-btn').disabled = true;
+            document.getElementById('configure-menu').style.display = 'none';
+
+            //TODO FLASHLIGHT
+            //TODO DIFFERENT ALGOS
             const tileSize = 25;
-            var width = 15;
-            var height = 15;
-            if (difficulty === "easy") {
-                var width = 30;
-                var height = 25;
-            }
-            if (difficulty === "monster") {
-                var width = 40;
-                var height = 35;
-            }
-            var sameDirInRow = 0;
-            var previousDir = -1;
-            if (difficulty === "medium" || difficulty === "hard" || difficulty === "monster") {
-                var coinAmount = Math.round(Math.random() * 6); // these coins will spawn randomly which you need to get in order to be able to see the exit.
-                while (coinAmount < 3) {
-                    //we do not want less than 3 coins
-                    coinAmount = Math.round(Math.random() * 6);
-                }
-            }
-            width = parseInt(document.getElementById('width').value);
-            height = parseInt(document.getElementById('height').value);
-            
+            const coinAmount = Math.round(Math.random() * 3) + 3;
+            let width = 0;
+            let height = 0;
+    
             const canvas = document.getElementById("maze");
             const context = canvas.getContext("2d");
             const overlay = document.getElementById("maze-overlay");
             const ctxOverlay = overlay.getContext("2d");
+            
+            width = parseInt(document.getElementById('width').value);
+            height = parseInt(document.getElementById('height').value);
+
+            let upPressed = false;
+            let rightPressed = false;
+            let downPressed = false;
+            let leftPressed = false;
+            setup_listeners();
+
             canvas.width = width * tileSize;
             canvas.height = height * tileSize;
             overlay.width = width * tileSize;
             overlay.height = height * tileSize;
-
-            console.log(screen.width + " " + canvas.width)
-            if (screen.width-canvas.width <= 0) {
-                $('#canvaswrapper').css("left", 0);
-            }
             
+            let player = new Player(0.03 * parseFloat(document.getElementById('speed').value));
+            let exit = null;
             let grid = [];
             let cells = [];
-
-            for (let x = 0; x < width; x++) {
-                for (let y = 0; y < height; y++) {
+            let coins = [];
+            /*        FILL GRID        */
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
                     var cell = new Cell(x, y);
+                    if (x > 0) {
+                        let neighbour = grid[index(x-1,y)];
+                        neighbour.neighbours[1] = cell;
+                        cell.neighbours[3] = neighbour;
+                    }
+                    if (y > 0) {
+                        let neighbour = grid[index(x,y-1)];
+                        neighbour.neighbours[2] = cell;
+                        cell.neighbours[0] = neighbour;
+                    }
                     grid.push(cell);
-                    if (differentAlgo) {
-                        cells.push(cell);
-                    }
+                    cells.push(cell);
                 }
             }
 
-            if (!differentAlgo) { 
-                var current = grid[0];
-                while (current) {
-                    current.visited = true;
-                    if (current.hasUnvisitedNeighbour()) {
-                        var next = current.getRandomUnvisitedNeighbour();
-                        current = next;
-                    } else {
-                        current = current.parent;
-                    }
-                } 
-            } else {
-                var random = Math.round(Math.random() * (cells.length-1));
-                var current = cells[random];
-                current.visited = true;
-                cells.splice(random, 1);
-                console.log(grid.length);
-                while (cells.length > 0) {
-                    random = Math.round(Math.random() * (cells.length-1));
-                    //console.log(random);
-                    current = cells[random];
+            if (document.getElementById('coins').checked) {
+                shuffle(cells);
+                for (let i = 0; i < coinAmount; i++) {
+                    /**** SPAWN COINS ****/
+                    let coin = new Coin();
+                    coin.cell = cells[i];
+                    cells[i].coin = coin;
+                    coins.push(coin);
+                }
+            }
+
+            /******* GENERATE MAZE *******/
+            shuffle(cells);
+            cells[0].visited = true;
+            cells = cells.filter((cell) => {return !cell.visited});
+            while (cells.length > 0) {
+                
+                let current_cell = cells[0];
+                let new_path = [current_cell];
+                while (current_cell && !current_cell.visited) {
+                    current_cell.visited = true;
                     
-                    if (current.canConnectToMaze()) {
-                        current.connectToMaze();
-                        cells.splice(random, 1);
-                        console.log("connected cell");
+                    let next = current_cell.getRandomNeighbourNotInPath(new_path);
+                    if (next) {
+                        new_path.push(next);
                     }
+                    current_cell = next;
+                }
+                cells = cells.filter((cell) => {return !cell.visited});
+            }
+
+
+            /****** MAIN LOOP ******/
+            let draw_queue = [];
+            /* add all cells and the player to the draw queue so they get drawn the first iteration */
+            for (let i = 0; i < grid.length; i++) {
+                draw_queue.push(grid[i]);
+            }
+            draw_queue.push(player);
+
+            // TODO MAIN LOOP
+            let startTime = Date.now();
+            player.last_loop = startTime;
+            function main_loop() {
+                update_timer();
+
+                let directions = [upPressed, rightPressed, downPressed, leftPressed];
+                if (directions.includes(true)) {
+                    player.occupiesCells().forEach((cell) => {draw_queue.push(cell)});
+                    player.move(directions);
+                    
+                    coins = coins.filter((coin) => {
+                        if (coin.intersects(player)) {
+                            coin.cell.coin = null;
+                            draw_queue.push(coin.cell);
+                            return false;
+                        }
+                        return true;
+                    });
+
+                    draw_queue.push(player);
+                }
+                if (!exit && coins.length == 0) {
+                    exit = new Exit();
+                    exit.initialize();
+                    draw_queue.push(exit);
+                }
+
+                /* redraw all items in draw_queue */
+                while (draw_queue.length > 0) {
+                    draw_queue.shift().draw();
+                } 
+
+                player.last_loop = Date.now();
+
+                if (!exit || !exit.intersects(player)) {
+                    setTimeout(main_loop, 100);
+                } else {
+                    document.getElementById('fireworks').style.display = 'block';
+                    startFireworks();
                 }
             }
+            main_loop();
 
-            grid[0].walls[3] = false;
-
-            for (let i = 0; i < grid.length; i++) {
-                grid[i].show();
-            }
-            
-            
-            context.fillStyle = "#000000";
-            context.moveTo(1,26);
-            context.lineTo(1, height * tileSize - 1);
-            context.stroke(); // left
-            
-            context.moveTo(1,1);
-            context.lineTo(width * tileSize - 1, 1);
-            context.stroke(); // top
-
-            context.moveTo(width * tileSize - 1, height * tileSize - 1);
-            context.lineTo(width * tileSize - 1, 1);
-            context.stroke(); // right
-
-            context.moveTo(width * tileSize - 1, height * tileSize - 1);
-            context.lineTo(1, height * tileSize - 1);
-            context.stroke(); // bottom
-            
-            
 
             /*
             ==============================================
@@ -259,8 +378,7 @@
 
 
             function index(x, y) {
-                //console.log(x + " " + y + " " + (x * width + y));
-                return x * height + y;
+                return y * height + x;
             }
 
             function Cell(x, y) {
@@ -269,160 +387,70 @@
                 this.y = y;
                 this.visited = false;
                 this.parent = null;
-                this.walls = [true, true, true, true]; //top right bottom left
+                this.neighbours = [null, null, null, null];
+                this.walls = [true, true, true, true];
+                this.coin = null;
 
                 this.hasUnvisitedNeighbour = function() {
-                    if (this.y >= 1) {
-                        var top = grid[index(this.x, this.y - 1)];
-                        if (!top.visited) {
-                            return true;
-                        }
-                    }
-                    if (this.x <= width - 2) {
-                        var right = grid[index(this.x + 1, this.y)];
-                        if (!right.visited) {
-                            return true;
-                        }
-                    }
-                    if (this.y <= height - 2) {
-                        var bottom = grid[index(this.x, this.y + 1)];
-                        if (!bottom.visited) {
-                            return true;
-                        }
-                    }
-                    if (this.x >= 1) {
-                        var left = grid[index(this.x - 1, this.y)];
-                        if (!left.visited) {
-                            return true;
-                        }
-                    }
-                }
-
-                this.getRandomUnvisitedNeighbour = function() {
-                    if (!this.hasUnvisitedNeighbour) {
-                        return null;
-                    }
-
-                    var neighbours = [];
-
-                    var top = null;
-                    var right = null;
-                    var bottom = null;
-                    var left = null;
-                    var possibleNeigh = 0;
-                    if (this.y >= 1) {
-                        var top = grid[index(this.x, this.y - 1)];
-                        possibleNeigh++;
-                    }
-                    if (this.x <= width - 2) {
-                        var right = grid[index(this.x + 1, this.y)];
-                        possibleNeigh++;
-                    }
-                    if (this.y <= height - 2) {
-                        var bottom = grid[index(this.x, this.y + 1)];
-                        possibleNeigh++;
-                    }
-                    if (this.x >= 1) {
-                        var left = grid[index(this.x - 1, this.y)];
-                        possibleNeigh++;
-                    }
-                    neighbours.push(top);
-                    neighbours.push(right);
-                    neighbours.push(bottom);
-                    neighbours.push(left);
-
-                    var chosen = null;
-                    let random;
-                    while (!chosen || chosen.visited || (random === previousDir && sameDirInRow > 5 && possibleNeigh > 1)) {
-                        random = Math.round(Math.random() * (neighbours.length - 1))
-                        chosen = neighbours[random];
-                    }
-
-                    if (random === previousDir) {
-                        sameDirInRow++;
-                    } else {
-                        sameDirInRow = 0;
-                        previousDir = random;
-                    }
-                    this.walls[random] = false;
-                    random += 2;
-                    if (random > 3) {
-                        random -= 4;
-                    }
-                    chosen.walls[random] = false;
-                    chosen.parent = this.self;
-
-                    return chosen;
-                }
-
-                this.canConnectToMaze = function() {
-                    if (this.y >= 1) {
-                        var top = grid[index(this.x, this.y - 1)];
-                        if (top.visited) {
-                            return true;
-                        }
-                    }
-                    if (this.x <= width - 2) {
-                        var right = grid[index(this.x + 1, this.y)];
-                        if (right.visited) {
-                            return true;
-                        }
-                    }
-                    if (this.y <= height - 2) {
-                        var bottom = grid[index(this.x, this.y + 1)];
-                        if (bottom.visited) {
-                            return true;
-                        }
-                    }
-                    if (this.x >= 1) {
-                        var left = grid[index(this.x - 1, this.y)];
-                        if (left.visited) {
-                            return true;
-                        }
+                    for (let i = 0; i < this.neighbours.length; i++) {
+                        let n = this.neighbours[i];
+                        if (n && !n.visited) return true;
                     }
                     return false;
                 }
 
-                this.connectToMaze = function() {
-                    this.visited = true;
+                this.getRandomUnvisitedNeighbour = function() {
+                    if (!this.hasUnvisitedNeighbour()) {
+                        return null;
+                    }
 
-                    let connectableCells = [];
+                    var possible_neighbours = [];
 
-                    if (this.y >= 1) {
-                        var top = grid[index(this.x, this.y - 1)];
-                        if (top.visited) {
-                            connectableCells.push({cell: top, wall: 0, otherWall: 2});
-                        }
+                    for (let i = 0; i < this.neighbours.length; i++) {
+                        let n = this.neighbours[i];
+                        if (n && !n.visited) possible_neighbours.push(n);
                     }
-                    if (this.x <= width - 2) {
-                        var right = grid[index(this.x + 1, this.y)];
-                        if (right.visited) {
-                            connectableCells.push({cell: right, wall: 1, otherWall: 3});
-                        }
-                    }
-                    if (this.y <= height - 2) {
-                        var bottom = grid[index(this.x, this.y + 1)];
-                        if (bottom.visited) {
-                            connectableCells.push({cell: bottom, wall: 2, otherWall: 0});
-                        }
-                    }
-                    if (this.x >= 1) {
-                        var left = grid[index(this.x - 1, this.y)];
-                        if (left.visited) {
-                            connectableCells.push({cell: left, wall: 3, otherWall: 1});
+
+                    let random = Math.round(Math.random() * (possible_neighbours.length - 1));
+                    let chosen = possible_neighbours[random];
+
+                    for (let i = 0; i < 4; i++) {
+                        if (this.neighbours[i] === chosen) {
+                            this.walls[i] = false;
+                            chosen.walls[(i+2)%4] = false;
                         }
                     }
 
-                    var choice = connectableCells[Math.round(Math.random() * (connectableCells.length - 1))];
-                    var chosen = choice.cell;
-
-                    this.walls[choice.wall] = false;
-                    chosen.walls[choice.otherWall] = false;
-                    this.parent = chosen;
+                    return chosen;
                 }
 
-                this.show = function() {
-                    context.fillStyle = "#192841";
+                this.getRandomNeighbourNotInPath = function(path) {
+                    var possible_neighbours = [];
+
+                    for (let i = 0; i < this.neighbours.length; i++) {
+                        let n = this.neighbours[i];
+                        if (n && !path.includes(n)) possible_neighbours.push(n);
+                    }
+
+                    if (possible_neighbours.length == 0) return this.parent.getRandomNeighbourNotInPath(path);
+
+                    let random = Math.round(Math.random() * (possible_neighbours.length - 1));
+                    let chosen = possible_neighbours[random];
+
+                    for (let i = 0; i < 4; i++) {
+                        if (this.neighbours[i] === chosen) {
+                            this.walls[i] = false;
+                            chosen.walls[(i+2)%4] = false;
+                        }
+                    }
+
+                    chosen.parent = this;
+
+                    return chosen;
+                }
+
+                this.draw = function() {
+                    context.fillStyle = "rgb(81, 66, 83)";
                     context.fillRect(this.x * tileSize, this.y * tileSize, tileSize, tileSize);
 
                     context.fillStyle = "#000000"
@@ -446,488 +474,260 @@
                         context.lineTo(this.x * tileSize, this.y * tileSize + tileSize);
                         context.stroke();
                     }
+
+                    if (this.coin) this.coin.draw();
                 }
+            
             }   
         
-            var upPressed = false;
-            var downPressed = false;
-            var leftPressed = false;
-            var rightPressed = false;
-            var leftButton = document.getElementById("left");
-            var rightButton = document.getElementById("right");
-            var upButton = document.getElementById("up");
-            var downButton = document.getElementById("down");
+            function Coin() {
+                this.cell = null;
+                this.draw = function() {
+                    let x = this.cell.x * tileSize + Math.round((tileSize - 5) / 2);
+                    let y = this.cell.y * tileSize + Math.round((tileSize - 9) / 2);
 
-            leftButton.addEventListener("touchstart", function(ev) {
-                leftPressed = true;
-                ev.preventDefault();
-            }, false);
-            $('#left').mousedown(() => {
-                leftPressed = true;
-            });
-            leftButton.addEventListener("touchend", function(ev) {
-                leftPressed = false;
-                ev.preventDefault();
-            }, false);
-            $('#left').mouseup(() => {
-                leftPressed = false;
-            });
+                    context.fillStyle = "#FFD300";
+                    context.fillRect(x,y+2,5,5);
+                    context.fillRect(x+1,y,3,9);
+                }
+                this.intersects = function(player) {
+                    /* Used to test whether something (mainly player) intersects this object */
+                    let x = this.cell.x * tileSize + Math.round((tileSize - 5) / 2);
+                    let y = this.cell.y * tileSize + Math.round((tileSize - 9) / 2);
 
-            rightButton.addEventListener("touchstart", function(ev) {
-                rightPressed = true;
-                ev.preventDefault();
-            }, false);
-            $('#right').mousedown(() => {
-                rightPressed = true;
-            });
-            rightButton.addEventListener("touchend", function(ev) {
-                rightPressed = false;
-                ev.preventDefault();
-            }, false);
-            $('#right').mouseup(() => {
-                rightPressed = false;
-            });
+                    return boxIntersect(x,y,9,5,player.x,player.y,player.height,player.width);
+                }
+            }
 
-            upButton.addEventListener("touchstart", function(ev) {
-                upPressed = true;
-                ev.preventDefault();
-            }, false);
-            $('#up').mousedown(() => {
-                upPressed = true;
-            });
-            upButton.addEventListener("touchend", function(ev) {
-                upPressed = false;
-                ev.preventDefault();
-            }, false);
-            $('#up').mouseup(() => {
-                upPressed = false;
-            });
+            function Player(spd) {
+                this.x = 9.0;
+                this.y = Math.floor(height/2)*tileSize+9.0;
+                this.speed = spd;
+                this.last_loop = Date.now();
+                this.width = 7;
+                this.height = 7;
+                this.draw = function() {
+                    let occupiedCells = this.occupiesCells();
+                    for (let i = 0; i < occupiedCells.length; i++) {
+                        occupiedCells[i].draw();
+                    }
 
-            downButton.addEventListener("touchstart", function(ev) {
-                downPressed = true;
-                ev.preventDefault();
-            }, false);
-            $('#down').mousedown(() => {
-                downPressed = true;
-            });
-            downButton.addEventListener("touchend", function(ev) {
-                downPressed = false;
-                ev.preventDefault();
-            }, false);
-            $('#down').mouseup(() => {
-                downPressed = false;
-            });
-            context.fillStyle = "#FF0000";
-            context.fillRect(9, 9, 7, 7);
-            var startTime = Date.now();
-            var x = 9;
-            var y = 9;
-            var oldx = x;
-            var oldy = y;
-            var winX = -1;
-            var winY = -1;
-            var centerExitX = -1;
-            var centerExitY = 1;
-            var noExit = true;
-            var coins = [];
-            var inExit = false;
+                    context.fillStyle = "#FF0000";
+                    context.fillRect(Math.round(this.x), Math.round(this.y), this.width, this.height);
 
-            document.addEventListener("keydown", (e) => {
-                switch (e.keyCode) {
-                    case 87: //w
-                        upPressed = true;
-                        break;
-                    case 65: //a
-                        leftPressed = true;
-                        break;
-                    case 83: //s
-                        downPressed = true;
-                        break;
-                    case 68: //d
-                        rightPressed = true;
-                        break;
+                    if (document.getElementById('flashlight').checked) 
+                        drawLight(ctxOverlay, Math.round(this.x+3), Math.round(this.y+3), 40);
+                }
+                this.occupiesCells = function() {
+                    let cs = [];
+                    let is = [index(Math.floor(this.x/tileSize), Math.floor(this.y/tileSize)), 
+                              index(Math.floor((this.x+this.width)/tileSize), Math.floor(this.y/tileSize)), 
+                              index(Math.floor(this.x/tileSize), Math.floor((this.y+this.height)/tileSize)), 
+                              index(Math.floor((this.x+this.width)/tileSize), Math.floor((this.y+this.height)/tileSize))];
+                    for (let x = 0; x < is.length; x++) {
+                        let i = is[x];
+                        if (!cs.includes(grid[i])) cs.push(grid[i]);
+                    }
+                    
+                    return cs;
+                }
+                this.move = function(directions) {
+                    /* This function moves the player based on a array[4] with the directions */
+                    let now = Date.now();
+                    let diff = now - this.last_loop;
 
-                    default:
-                        return; // Do nothing for the rest
-                };
-            });
+                    if (directions[0]) {
+                        this.y -= this.speed * diff;
+                    }
+                    if (directions[2]) {
+                        this.y += this.speed * diff;
+                    }
+                    if (directions[3]) {
+                        this.x -= this.speed * diff;
+                    }
+                    if (directions[1]) {
+                        this.x += this.speed * diff;
+                    }
+                }
+            }
 
-            document.addEventListener("keyup", (e) => {
-                switch (e.keyCode) {
-                    case 87: //w
-                        upPressed = false;
-                        break;
-                    case 65: //a
-                        leftPressed = false;
-                        break;
-                    case 83: //s
-                        downPressed = false;
-                        break;
-                    case 68: //d
-                        rightPressed = false;
-                        break;
+            function Exit(x, y, side) {
+                this.x = x;
+                this.y = y;
+                this.side = side;
 
-                    default:
-                        return; // Do nothing for the rest
-                };
-            });
+                this.initialize = function() {
+                    this.side = Math.floor(Math.random() * 3);
+                    let h = Math.round(Math.random() * (width-1));
+                    let v = Math.round(Math.random() * (height-1));
+                    if (side === 0) {
+                        this.x = h;
+                        this.y = 0;
+                    } else if (side === 2) {
+                        this.x = h;
+                        this.y = height-1;
+                    } else {
+                        this.x = width-1;
+                        this.y = v;
+                    }
+                }
+                this.draw = function() {
+                    let px = this.x*tileSize;
+                    let py = this.y*tileSize;
 
-            if (difficulty === "medium" || difficulty === "hard" || difficulty === "monster") { addCoins(); }
-            else { addExit(); noExit = false; }
-            
-            update();
-            var req;
+                    if (this.side === 0) {
+                        py -= 13;
+                    } else if (this.side === 2) {
+                        py += 13;
+                    } else {
+                        px += 13;
+                    }
 
-            function update() {
+                    drawEllipse(context, px, py, 25, 25);
+                }
+                this.intersects = function(player) {
+                    /* Used to test whether something (mainly player) intersects with this object */
+                    // if (this.side == 0) {
+                    //     return boxIntersect(this.x*tileSize+3,0,13,19,player.x,player.y,player.height,player.width);
+                    // } else if (this.side == 2) {
+                    //     return boxIntersect(this.x*tileSize+3,this.y*tileSize+12,13,19,player.x,player.y,player.height,player.width);
+                    // } else {
+                    //     return boxIntersect(this.x*tileSize+12,this.y*tileSize+tileSize+3,19,13,player.x,player.y,player.height,player.width);
+                    // }
+                    
+                    return player.occupiesCells().includes(grid[index(this.x,this.y)]);
+                }
+            }
+
+            function update_timer() {
                 var difference = Date.now() - startTime;
                 var millis = difference%1000;
                 var seconds = Math.floor(difference/1000)%60;
                 var minutes = Math.floor(difference/60000)%60;
                 var hours = Math.floor(difference/3600000);
-                $('#timer').text(hours + "H " + minutes + "m " + seconds + "." + millis + "s");
-
-                setTimeout(function() {
-                    oldx = x;
-                    oldy = y;
-                    var gotACoin = false;
-
-                    var surroundings = context.getImageData(x-1, y-1,9,9).data;
-
-                    var allowedLeft = function() {
-                        let ioffset = 1;
-                        let length = 8;
-                        if (upPressed) {
-                            ioffset = 0;
-                            length += 1;
-                        }
-                        if (downPressed) {
-                            length += 1;
-                        }
-                        if (upPressed && downPressed) {
-                            ioffset = 1;
-                            length = 8;
-                        }
-                        for (let i = ioffset; i < length; i++) {
-                            if (difficulty === "medium" || difficulty === "hard" || difficulty === "monster") {
-                                if (!rightPressed && surroundings[i * 36] == 255 && surroundings[i*36+1] == 211 && surroundings[i*36+2] == 0) {
-                                    gotACoin = true;
-                                }
-                            }
-                            if (!rightPressed && surroundings[i * 36] == 101 && surroundings[i*36+1] == 147 && surroundings[i*36+2] == 245) {
-                                inExit = true;
-                            }
-                            if (surroundings[i * 36] < 5 && surroundings[i*36+1] < 5 && surroundings[i*36+2] < 5) {
-                                return false;
-                            }
-                        }
-                        return true;
-                    }
-                    var allowedRight = function() {
-                        let ioffset = 1;
-                        let length = 8;
-                        if (upPressed) {
-                            ioffset = 0;
-                            length += 1;
-                        }
-                        if (downPressed) {
-                            length += 1;
-                        }
-                        if (upPressed && downPressed) {
-                            ioffset = 1;
-                            length = 8;
-                        }
-                        for (let i = ioffset; i < length; i++) {
-                            if (difficulty === "medium" || difficulty === "hard" || difficulty === "monster") {
-                                if (!leftPressed && surroundings[i * 36 + 32] == 255 && surroundings[i*36+33] == 211 && surroundings[i*36+34] == 0) {
-                                    gotACoin = true;
-                                }
-                            }
-                            if (!leftPressed && surroundings[i * 36 + 32] == 101 && surroundings[i*36+33] == 147 && surroundings[i*36+34] == 245) {
-                                inExit = true;
-                            }
-                            if (surroundings[i * 36 + 32] < 5 && surroundings[i*36+33] < 5 && surroundings[i*36+34] < 5) {
-                                return false;
-                            }
-                        }
-                        return true;
-                    }
-                    var allowedDown = function() {
-                        let ioffset = 1;
-                        let length = 8;
-                        if (leftPressed) {
-                            ioffset = 0;
-                            length += 1;
-                        }
-                        if (rightPressed) {
-                            length += 1;
-                        }
-                        if (leftPressed && rightPressed) {
-                            ioffset = 1;
-                            length = 8;
-                        }
-                        var offset = 8*36;
-                        for (let i = ioffset; i < length; i++) {
-                            if (difficulty === "medium" || difficulty === "hard" || difficulty === "monster") {
-                                if (!upPressed && surroundings[i * 4 + offset] == 255 && surroundings[i*4+1 + offset] == 211 && surroundings[i*4+2 + offset] == 0) {
-                                    gotACoin = true;
-                                }
-                            }
-                            if (!upPressed && surroundings[i * 4 + offset] == 101 && surroundings[i*4+1 + offset] == 147 && surroundings[i*4+2 + offset] == 245) {
-                                inExit = true;
-                            }
-                            if (surroundings[i * 4 + offset] < 5 && surroundings[i*4+1 + offset] < 5 && surroundings[i*4+2 + offset] < 5) {
-                                return false;
-                            }
-                        }
-                        return true;
-                    }
-                    var allowedUp = function() {
-                        let ioffset = 1;
-                        let length = 8;
-                        if (leftPressed) {
-                            ioffset = 0;
-                            length += 1;
-                        }
-                        if (rightPressed) {
-                            length += 1;
-                        }
-                        if (leftPressed && rightPressed) {
-                            ioffset = 1;
-                            length = 8;
-                        }
-                        for (let i = ioffset; i < length; i++) {
-                            if (difficulty === "medium" || difficulty === "hard" || difficulty === "monster") {
-                                if (!downPressed && surroundings[i * 4] == 255 && surroundings[i*4+1] == 211 && surroundings[i*4+2] == 0) {
-                                    gotACoin = true;
-                                }
-                            }
-                            if (!downPressed && surroundings[i * 4] == 101 && surroundings[i*4+1] == 147 && surroundings[i*4+2] == 245) {
-                                inExit = true;
-                            }
-                            if (surroundings[i * 4] < 5 && surroundings[i*4+1] < 5 && surroundings[i*4+2] < 5) {
-                                return false;
-                            }
-                        }
-                        return true;
-                    }
-                    
-                    if (upPressed && allowedUp()) {
-                        if (y > 0) {
-                            y -= 1;
-                        }
-                    }
-                    if (leftPressed && allowedLeft()) {
-                        if (x > 0) {
-                            x -= 1;
-                        }
-                    }
-                    if (downPressed && allowedDown()) {
-                        if (y < height * tileSize - 7) {
-                            y += 1; 
-                        }
-                    }
-                    if (rightPressed && allowedRight()) {
-                        if (x < width * tileSize - 7) {
-                            x += 1; 
-                        }
-                    }
-
-                    if (gotACoin && (difficulty === "medium" || difficulty === "hard" || difficulty === "monster")) {
-                        // let gottenCoins = [];
-                        // for (let i = 0; i < coins.length; i++) {
-                        //     let coin = coins[i];
-                        //     if (x-coin.x < 0 && (x+8)-coin.x > 0 && y-coin.y < 0 && (y+8)-coin.y > 0) {
-                        //         console.log("gotten coin");
-                        //         gottenCoins.push(i);
-                        //         gottenCoin(i);
-                        //     }
-                        // }
-                        // for (let i = gottenCoins.length - 1; i >= 0; i--) {
-                        //     coins.splice(gottenCoins[i], 1);
-                        //     console.log(coins.length);
-                        // }
-                        // if (coins.length < 1 && noExit) {
-                        //     //debugger;
-                        //     addExit();
-                        //     console.log("added exit");
-                        //     noExit = false;
-                        // }
-                        gottenCoin(x, y);
-                    }
-
-                    redrawPlayer(oldx, oldy, x, y);
-
-                    if (inExit || (winX > -1 && winY > -1 && x >= (winX+0.25)*tileSize && x <= (winX+0.75) * tileSize && y >= (winY+0.25)*tileSize && y <= (winY+0.75) * tileSize)) {
-                        console.log("you've won!");
-                        cancelAnimationFrame(req);
-                        $('#fireworks').css("display", "block");
-                        startFireworks();
-                    } else {
-                        req = requestAnimationFrame(update);
-                    }
-                }, 1);
+                document.getElementById('timer').innerHTML = "" + hours + "H " + minutes + "m " + seconds + "." + millis + "s";
             }
 
-            function redrawGrid() {
-                for (let i = 0; i< grid.length; i++) {
-                    grid[i].show();
-                }
+            function setup_listeners() {
+                var leftButton = document.getElementById("left");
+                var rightButton = document.getElementById("right");
+                var upButton = document.getElementById("up");
+                var downButton = document.getElementById("down");
 
-                for (let i = 0; i < coins.length; i++) {
-                    drawEllipseByCenter(context, coins[i].x, coins[i].y, 5, 9);
-                }
+                leftButton.addEventListener("touchstart", function(ev) {
+                    leftPressed = true;
+                    ev.preventDefault();
+                }, false);
+                leftButton.addEventListener('mousedown', () => {
+                    leftPressed = true;
+                });
+                leftButton.addEventListener("touchend", function(ev) {
+                    leftPressed = false;
+                    ev.preventDefault();
+                }, false);
+                leftButton.addEventListener('mouseup', () => {
+                    leftPressed = false;
+                });
+
+                rightButton.addEventListener("touchstart", function(ev) {
+                    rightPressed = true;
+                    ev.preventDefault();
+                }, false);
+                rightButton.addEventListener('mousedown', () => {
+                    rightPressed = true;
+                });
+                rightButton.addEventListener("touchend", function(ev) {
+                    rightPressed = false;
+                    ev.preventDefault();
+                }, false);
+                rightButton.addEventListener('mouseup', () => {
+                    rightPressed = false;
+                });
+
+                upButton.addEventListener("touchstart", function(ev) {
+                    upPressed = true;
+                    ev.preventDefault();
+                }, false);
+                upButton.addEventListener('mousedown', () => {
+                    upPressed = true;
+                });
+                upButton.addEventListener("touchend", function(ev) {
+                    upPressed = false;
+                    ev.preventDefault();
+                }, false);
+                upButton.addEventListener('mouseup', () => {
+                    upPressed = false;
+                });
+
+                downButton.addEventListener("touchstart", function(ev) {
+                    downPressed = true;
+                    ev.preventDefault();
+                }, false);
+                downButton.addEventListener('mousedown', () => {
+                    downPressed = true;
+                });
+                downButton.addEventListener("touchend", function(ev) {
+                    downPressed = false;
+                    ev.preventDefault();
+                }, false);
+                downButton.addEventListener('mouseup', () => {
+                    downPressed = false;
+                });
+
+                document.addEventListener("keydown", (e) => {
+                    switch (e.keyCode) {
+                        case 38:
+                        case 87: //w
+                            upPressed = true;
+                            break;
+                        case 37:
+                        case 65: //a
+                            leftPressed = true;
+                            break;
+                        case 40:
+                        case 83: //s
+                            downPressed = true;
+                            break;
+                        case 39:
+                        case 68: //d
+                            rightPressed = true;
+                            break;
+    
+                        default:
+                            return; // Do nothing for the rest
+                    };
+                });
+    
+                document.addEventListener("keyup", (e) => {
+                    switch (e.keyCode) {
+                        case 38:
+                        case 87: //w
+                            upPressed = false;
+                            break;
+                        case 37:
+                        case 65: //a
+                            leftPressed = false;
+                            break;
+                        case 40:
+                        case 83: //s
+                            downPressed = false;
+                            break;
+                        case 39:
+                        case 68: //d
+                            rightPressed = false;
+                            break;
+    
+                        default:
+                            return; // Do nothing for the rest
+                    };
+                });
             }
+            
 
-            function redrawPlayer(oldX, oldY, newX, newY) {
-                context.fillStyle = "#192841";
-                context.fillRect(oldX, oldY, 7, 7);
-                context.fillStyle = "#FF0000";
-                context.fillRect(newX, newY, 7, 7);
-
-                if (difficulty === "hard") {
-                    drawLight(ctxOverlay, newX - 3, newY - 3, 40);
-                }
-                if (difficulty === "monster") {
-                    drawLight(ctxOverlay, newX - 3, newY - 3, 28);
-                }
+            function boxIntersect(ax, ay, ah, aw, bx, by, bh, bw) {
+                return Math.abs((ax + aw/2) - (bx + bw/2)) * 2 < (aw + bw) && 
+                       Math.abs((ay + ah/2) - (by + bh/2)) * 2 < (ah + bh);
             }
-
-            function gottenCoin(x, y) {
-                //first map x,y to the normal tileSize;
-                normalizedX = Math.floor(x/tileSize);
-                normalizedY = Math.floor(y/tileSize);
-                console.log("location: " + normalizedX + ", " + normalizedY);
-
-                var indicesToSplice = [];
-                for (let i = 0; i < coins.length; i++) {
-                    if (coins[i].tileX === normalizedX && coins[i].tileY === normalizedY) {
-                        grid[index(coins[i].tileX, coins[i].tileY)].show();
-                        indicesToSplice.push(i);
-                    }
-                }
-
-                for (let i = indicesToSplice.length - 1; i >= 0; i--) {
-                    coins.splice(indicesToSplice[i], 1);
-                    console.log(coins.length);
-                }
-
-                if (coins.length < 1 && noExit) {
-                    //debugger;
-                    addExit();
-                    console.log("added exit");
-                    noExit = false;
-                }
-            }
-
-            function addCoins() {
-                let gridSize = grid.length - 1;
-                let halfTile = Math.floor(tileSize/2);
-                for (let i = 0; i <= coinAmount; i++) {
-                    let choice = Math.round(Math.random() * gridSize);
-                    let tileOfCoin = grid[choice];
-                    let coinX = tileOfCoin.x*tileSize+halfTile;
-                    let coinY = tileOfCoin.y*tileSize+halfTile;
-                    drawCoin(coinX, coinY);
-                    //drawEllipseByCenter(context, coinX, coinY, 5, 9);
-
-                    coins.push({x: coinX, y: coinY, tileX: tileOfCoin.x, tileY: tileOfCoin.y});
-                    console.log("added coin on: " + coinX + ", " + coinY);
-                }
-                console.log("number of coins: " + coins.length);
-            }
-
-            function addExit() {
-                //choose the ending tile
-                //first choose the side 0 top, 1 right, 2 bottom
-                var side = Math.round(Math.random() * 2);
-                var place = 0;
-                
-                //then decide the place
-                if (side === 0) { // if top we dont want to have it near the start
-                    place = 10 + Math.round(Math.random() * (width - 11));
-                    winX = place;
-                    winY = 0;
-                    grid[index(place, 0)].walls[side] = false;
-                } else if (side === 1) {
-                    place = Math.round(Math.random() * (height - 1));
-                    winX = width - 1;
-                    winY = place;
-                    grid[index(width - 1, place)].walls[side] = false;
-                } else {
-                    place = Math.round(Math.random() * (width - 1));
-                    winX = place;
-                    winY = height - 1;
-                    grid[index(place, height - 1)].walls[side] = false;
-                }
-
-                if (side === 0) {
-                    context.fillStyle = "#192841";
-                    context.moveTo(1,1);
-                    context.lineTo(width * tileSize - 1, 1);
-                    context.stroke();
-
-                    context.fillStyle = "#000000";
-                    context.moveTo(1,1);
-                    context.lineTo(place * tileSize, 1);
-                    context.stroke();
-                    context.moveTo((place + 1) * tileSize,1);
-                    context.lineTo(width * tileSize - 1, 1);
-                    context.stroke(); //top
-
-                    drawEllipseByCenter(context, winX*tileSize+13, 0, 25, 25, "#6593F5");
-
-                    centerExitX = winX*tileSize + 13;
-                    centerExitY = 0;
-                }
-                if (side === 1) {
-                    context.fillStyle = "#192841";
-                    context.moveTo(width * tileSize - 1, height * tileSize - 1);
-                    context.lineTo(width * tileSize - 1, 1);
-                    context.stroke();
-                    
-                    context.fillStyle = "#000000";
-                    context.moveTo(width * tileSize - 1, height * tileSize - 1);
-                    context.lineTo(width * tileSize - 1, (place + 1) * tileSize);
-                    context.stroke();
-                    context.moveTo(width * tileSize - 1, place * tileSize);
-                    context.lineTo(width * tileSize - 1, 1);
-                    context.stroke(); // right
-
-                    drawEllipseByCenter(context, (winX+1)*tileSize, winY*tileSize+13, 25, 25, "#6593F5");
-
-                    centerExitX = width*tileSize;
-                    centerExitY = winY*tileSize + 13;
-                }
-                if (side === 2) {
-                    context.fillStyle = "#192841";
-                    context.moveTo(width * tileSize - 1, height * tileSize - 1);
-                    context.lineTo(1, height * tileSize - 1);
-                    context.stroke();
-
-                    context.fillStyle = "#000000";
-                    context.moveTo(width * tileSize - 1, height * tileSize - 1);
-                    context.lineTo((place + 1) * tileSize, height * tileSize - 1);
-                    context.stroke();
-                    context.moveTo(place * tileSize,height * tileSize - 1);
-                    context.lineTo(1, height * tileSize - 1);
-                    context.stroke(); // bottom
-
-                    drawEllipseByCenter(context, winX*tileSize+13, (winY+1)*tileSize, 25, 25, "#6593F5");
-
-                    centerExitX = winX*tileSize + 13;
-                    centerExitY = height*tileSize;
-                }
-            }
-
-            function drawCoin(x, y) {
-                tx = x - 2;
-                ty = y - 4;
-
-                context.fillStyle = "#FFD300";
-                context.fillRect(x,y+2,5,5);
-                context.fillRect(x+1,y,3,9);
-            }
-
 
             function drawEllipseByCenter(ctx, cx, cy, w, h, color) {
                 drawEllipse(ctx, cx - w/2.0, cy - h/2.0, w, h);
@@ -942,7 +742,7 @@
                 xm = x + w / 2,       // x-middle
                 ym = y + h / 2;       // y-middle
 
-                ctx.fillStyle = "#6593F5";
+                ctx.fillStyle = "rgb(250, 227, 152)";
 
                 ctx.beginPath();
                 ctx.moveTo(x, ym);
@@ -965,7 +765,7 @@
                 ctx.clearRect(0, 0, overlay.width, overlay.height);
                 ctx.restore();
 
-                if (!noExit) {
+                if (exit) {
                     ctx.save();
                     ctx.beginPath();
                     ctx.arc(centerExitX, centerExitY, 35, 0, 2 * Math.PI);
@@ -982,8 +782,6 @@
             I do not take the credit of writing this piece of code whatshowever!!!
             ==================================================
             */
-
-
             function startFireworks() {
                 var screenWidth = window.innerWidth;
                 var screenHeight = window.innerHeight;
